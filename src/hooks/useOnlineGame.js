@@ -3,7 +3,8 @@ import { io } from 'socket.io-client';
 
 export const useOnlineGame = () => {
   const [socket, setSocket] = useState(null);
-  const [roomId, setRoomId] = useState(null);
+  const [roomId, setRoomIdState] = useState(null);
+  const roomIdRef = useRef(null);
   const [playerSymbol, setPlayerSymbol] = useState(null);
   const [board, setBoard] = useState(Array(9).fill(null));
   const [currentTurn, setCurrentTurn] = useState('X');
@@ -12,6 +13,11 @@ export const useOnlineGame = () => {
   const [status, setStatus] = useState('idle'); // idle, connecting, connected, waiting, playing, finished
   const [error, setError] = useState(null);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
+
+  const setRoomId = (id) => {
+    roomIdRef.current = id;
+    setRoomIdState(id);
+  };
 
   // Generate or retrieve persistent player ID for reconnection
   const getPlayerId = () => {
@@ -35,7 +41,7 @@ export const useOnlineGame = () => {
     
     const newSocket = io(SOCKET_URL, {
       query: { playerId: getPlayerId() },
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 10,
     });
 
     setSocket(newSocket);
@@ -43,6 +49,10 @@ export const useOnlineGame = () => {
     newSocket.on('connect', () => {
       setStatus('connected');
       setError(null);
+      // Auto-rejoin room if a disconnection dropped us previously
+      if (roomIdRef.current) {
+        newSocket.emit('join-room', { roomId: roomIdRef.current });
+      }
     });
 
     newSocket.on('connect_error', (err) => {
@@ -152,16 +162,16 @@ export const useOnlineGame = () => {
   }, [socket]);
 
   const makeMove = useCallback((index) => {
-    if (socket && roomId && status === 'playing' && currentTurn === playerSymbol) {
-      socket.emit('make-move', { roomId, cellIndex: index });
+    if (socket && roomIdRef.current && status === 'playing' && currentTurn === playerSymbol) {
+      socket.emit('make-move', { roomId: roomIdRef.current, cellIndex: index });
     }
-  }, [socket, roomId, status, currentTurn, playerSymbol]);
+  }, [socket, status, currentTurn, playerSymbol]);
 
   const restartGame = useCallback(() => {
-    if (socket && roomId) {
-      socket.emit('restart-game', { roomId });
+    if (socket && roomIdRef.current) {
+      socket.emit('restart-game', { roomId: roomIdRef.current });
     }
-  }, [socket, roomId]);
+  }, [socket]);
 
   const leaveRoom = useCallback(() => {
     if (socket) {
@@ -177,7 +187,7 @@ export const useOnlineGame = () => {
   }, [socket]);
 
   return {
-    roomId,
+    roomId: roomIdRef.current,
     playerSymbol,
     board,
     currentTurn,
