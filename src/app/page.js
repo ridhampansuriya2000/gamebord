@@ -30,7 +30,10 @@ export default function Home() {
         Play vs Bot
       </button>
       <button
-        onClick={() => setGameMode('online')}
+        onClick={() => {
+          setGameMode('online');
+          onlineGame.connect();
+        }}
         className="w-64 py-4 px-6 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl border border-white/20 shadow-lg transition-all hover:scale-105 active:scale-95 text-xl font-bold flex items-center justify-center gap-3 group"
       >
         <span className="text-rose-400 group-hover:drop-shadow-[0_0_10px_rgba(251,113,133,0.8)] transition-all">🌐</span>
@@ -39,59 +42,74 @@ export default function Home() {
     </div>
   );
 
-  const renderOnlineLobby = () => (
-    <div className="flex flex-col items-center gap-6 animate-in slide-in-from-bottom-4 duration-500 w-full max-w-sm">
-      <div className="flex w-full justify-between items-center mb-2">
-        <h2 className="text-2xl font-semibold text-slate-200">Online Lobby</h2>
-        <button onClick={() => setGameMode(null)} className="text-slate-400 hover:text-white transition-colors">
-          ← Back
-        </button>
-      </div>
+  const renderOnlineLobby = () => {
+    const isConnecting = onlineGame.status === 'idle' || onlineGame.status === 'connecting';
+    const isDisconnected = onlineGame.status === 'disconnected';
 
-      {onlineGame.error && (
-        <div className="w-full p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-center animate-in shake">
-          {onlineGame.error}
-        </div>
-      )}
-
-      {onlineGame.status === 'disconnected' ? (
-        <div className="text-slate-400 animate-pulse">Connecting to server...</div>
-      ) : (
-        <>
-          <button
-            onClick={onlineGame.createRoom}
-            className="w-full py-4 px-6 bg-gradient-to-r from-rose-500/20 to-orange-500/20 hover:from-rose-500/30 hover:to-orange-500/30 backdrop-blur-md rounded-xl border border-rose-500/30 shadow-lg transition-all hover:scale-[1.02] active:scale-95 text-lg font-bold"
-          >
-            Create New Room
+    return (
+      <div className="flex flex-col items-center gap-6 animate-in slide-in-from-bottom-4 duration-500 w-full max-w-sm">
+        <div className="flex w-full justify-between items-center mb-2">
+          <h2 className="text-2xl font-semibold text-slate-200">Online Lobby</h2>
+          <button onClick={() => setGameMode(null)} className="text-slate-400 hover:text-white transition-colors">
+            ← Back
           </button>
+        </div>
 
-          <div className="flex items-center w-full gap-4 my-2">
-            <div className="h-px bg-white/10 flex-1"></div>
-            <span className="text-slate-400 text-sm">OR</span>
-            <div className="h-px bg-white/10 flex-1"></div>
-          </div>
-
-          <div className="w-full flex flex-col gap-3">
-            <input
-              type="text"
-              placeholder="Enter Room Code"
-              value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-              maxLength={6}
-              className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-center text-xl tracking-[0.25em] font-mono text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors uppercase"
-            />
-            <button
-              onClick={() => onlineGame.joinRoom(joinCode)}
-              disabled={joinCode.length < 3}
-              className="w-full py-3 px-6 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg transition-all active:scale-95 text-lg font-bold"
-            >
-              Join Room
+        {onlineGame.error && (
+          <div className="w-full p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-center animate-in shake flex flex-col gap-2">
+            <span className="font-bold">Connection Failed</span>
+            <span className="text-sm">{onlineGame.error}</span>
+            <span className="text-xs mt-2 text-red-300">Did you add NEXT_PUBLIC_SOCKET_URL in your hosting platform (Vercel)?</span>
+            <button onClick={onlineGame.connect} className="mt-2 px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-md text-sm transition-all">
+              Retry Connection
             </button>
           </div>
-        </>
-      )}
-    </div>
-  );
+        )}
+
+        {isConnecting && !onlineGame.error ? (
+          <div className="text-slate-400 animate-pulse my-8 flex flex-col items-center gap-3">
+            <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+            Connecting to Multiplayer Server...
+          </div>
+        ) : isDisconnected && !onlineGame.error ? (
+          <div className="text-orange-400 animate-pulse my-8">Disconnected from server.</div>
+        ) : !onlineGame.error && (
+          <>
+            <button
+              onClick={onlineGame.createRoom}
+              className="w-full py-4 px-6 bg-gradient-to-r from-rose-500/20 to-orange-500/20 hover:from-rose-500/30 hover:to-orange-500/30 backdrop-blur-md rounded-xl border border-rose-500/30 shadow-lg transition-all hover:scale-[1.02] active:scale-95 text-lg font-bold"
+            >
+              Create New Room
+            </button>
+
+            <div className="flex items-center w-full gap-4 my-2">
+              <div className="h-px bg-white/10 flex-1"></div>
+              <span className="text-slate-400 text-sm">OR</span>
+              <div className="h-px bg-white/10 flex-1"></div>
+            </div>
+
+            <div className="w-full flex flex-col gap-3">
+              <input
+                type="text"
+                placeholder="Enter Room Code"
+                value={joinCode}
+                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                maxLength={6}
+                className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-center text-xl tracking-[0.25em] font-mono text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors uppercase"
+              />
+              <button
+                onClick={() => onlineGame.joinRoom(joinCode)}
+                disabled={joinCode.length < 3}
+                className="w-full py-3 px-6 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg transition-all active:scale-95 text-lg font-bold"
+              >
+                Join Room
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  };
 
   const renderGameHeader = () => {
     if (gameMode === 'online') {

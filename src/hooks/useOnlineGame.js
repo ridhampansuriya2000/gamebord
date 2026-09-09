@@ -9,7 +9,7 @@ export const useOnlineGame = () => {
   const [currentTurn, setCurrentTurn] = useState('X');
   const [winner, setWinner] = useState(null);
   const [draw, setDraw] = useState(false);
-  const [status, setStatus] = useState('disconnected'); // disconnected, connected, waiting, playing, finished
+  const [status, setStatus] = useState('idle'); // idle, connecting, connected, waiting, playing, finished
   const [error, setError] = useState(null);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
 
@@ -26,11 +26,16 @@ export const useOnlineGame = () => {
     return 'default_id';
   };
 
-  useEffect(() => {
+  const connect = useCallback(() => {
+    if (socket || status === 'connecting' || status === 'connected') return;
+
+    setStatus('connecting');
+    setError(null);
     const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
     
     const newSocket = io(SOCKET_URL, {
-      query: { playerId: getPlayerId() }
+      query: { playerId: getPlayerId() },
+      reconnectionAttempts: 5,
     });
 
     setSocket(newSocket);
@@ -38,6 +43,11 @@ export const useOnlineGame = () => {
     newSocket.on('connect', () => {
       setStatus('connected');
       setError(null);
+    });
+
+    newSocket.on('connect_error', (err) => {
+      setError(`Connection Error: Could not connect to ${SOCKET_URL}. Check if the backend is running!`);
+      setStatus('disconnected');
     });
 
     newSocket.on('disconnect', () => {
@@ -122,8 +132,16 @@ export const useOnlineGame = () => {
       }
     });
 
-    return () => newSocket.close();
-  }, []);
+  }, [socket, status]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+    };
+  }, [socket]);
 
   const createRoom = useCallback(() => {
     if (socket) socket.emit('create-room');
@@ -168,6 +186,7 @@ export const useOnlineGame = () => {
     status,
     error,
     opponentDisconnected,
+    connect,
     createRoom,
     joinRoom,
     makeMove,
