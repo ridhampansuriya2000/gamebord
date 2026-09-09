@@ -9,10 +9,16 @@ export const useOnlineGame = () => {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [currentTurn, setCurrentTurn] = useState('X');
   const [winner, setWinner] = useState(null);
+  const [winningLine, setWinningLine] = useState(null);
   const [draw, setDraw] = useState(false);
   const [status, setStatus] = useState('idle'); // idle, connecting, connected, waiting, playing, finished
   const [error, setError] = useState(null);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
+  
+  // Restart request states
+  const [opponentRequestedRestart, setOpponentRequestedRestart] = useState(false);
+  const [iRequestedRestart, setIRequestedRestart] = useState(false);
+  const [restartDeclined, setRestartDeclined] = useState(false);
 
   const setRoomId = (id) => {
     roomIdRef.current = id;
@@ -75,8 +81,12 @@ export const useOnlineGame = () => {
       setStatus(data.status); // 'waiting'
       setBoard(Array(9).fill(null));
       setWinner(null);
+      setWinningLine(null);
       setDraw(false);
       setOpponentDisconnected(false);
+      setOpponentRequestedRestart(false);
+      setIRequestedRestart(false);
+      setRestartDeclined(false);
     });
 
     newSocket.on('player-joined', (data) => {
@@ -85,8 +95,12 @@ export const useOnlineGame = () => {
       setStatus(data.status); // 'playing'
       setBoard(Array(9).fill(null));
       setWinner(null);
+      setWinningLine(null);
       setDraw(false);
       setOpponentDisconnected(false);
+      setOpponentRequestedRestart(false);
+      setIRequestedRestart(false);
+      setRestartDeclined(false);
     });
 
     newSocket.on('game-start', (data) => {
@@ -94,8 +108,12 @@ export const useOnlineGame = () => {
       setCurrentTurn(data.currentTurn);
       setStatus('playing');
       setWinner(null);
+      setWinningLine(null);
       setDraw(false);
       setOpponentDisconnected(false);
+      setOpponentRequestedRestart(false);
+      setIRequestedRestart(false);
+      setRestartDeclined(false);
     });
 
     newSocket.on('game-state', (data) => {
@@ -105,11 +123,14 @@ export const useOnlineGame = () => {
       if (data.winner) {
         if (data.winner === 'Draw') {
           setDraw(true);
+          setWinningLine(null);
         } else {
           setWinner(data.winner);
+          setWinningLine(data.winningLine);
         }
       } else {
         setWinner(null);
+        setWinningLine(null);
         setDraw(false);
       }
       
@@ -121,8 +142,10 @@ export const useOnlineGame = () => {
     newSocket.on('game-over', (data) => {
        if (data.winner === 'Draw') {
          setDraw(true);
+         setWinningLine(null);
        } else {
          setWinner(data.winner);
+         setWinningLine(data.winningLine);
        }
        setStatus('finished');
     });
@@ -140,6 +163,17 @@ export const useOnlineGame = () => {
         setError('Opponent failed to reconnect. Room closed.');
         leaveRoom();
       }
+    });
+
+    // Restart logic
+    newSocket.on('restart-requested', () => {
+      setOpponentRequestedRestart(true);
+    });
+
+    newSocket.on('restart-declined', () => {
+      setRestartDeclined(true);
+      setIRequestedRestart(false);
+      setTimeout(() => setRestartDeclined(false), 3000);
     });
 
   }, [socket, status]);
@@ -167,9 +201,25 @@ export const useOnlineGame = () => {
     }
   }, [socket, status, currentTurn, playerSymbol]);
 
-  const restartGame = useCallback(() => {
+  const requestRestart = useCallback(() => {
     if (socket && roomIdRef.current) {
-      socket.emit('restart-game', { roomId: roomIdRef.current });
+      socket.emit('request-restart', { roomId: roomIdRef.current });
+      setIRequestedRestart(true);
+      setRestartDeclined(false);
+    }
+  }, [socket]);
+
+  const acceptRestart = useCallback(() => {
+    if (socket && roomIdRef.current) {
+      socket.emit('accept-restart', { roomId: roomIdRef.current });
+      setOpponentRequestedRestart(false);
+    }
+  }, [socket]);
+
+  const declineRestart = useCallback(() => {
+    if (socket && roomIdRef.current) {
+      socket.emit('decline-restart', { roomId: roomIdRef.current });
+      setOpponentRequestedRestart(false);
     }
   }, [socket]);
 
@@ -180,27 +230,38 @@ export const useOnlineGame = () => {
       setPlayerSymbol(null);
       setBoard(Array(9).fill(null));
       setWinner(null);
+      setWinningLine(null);
       setDraw(false);
       setStatus('connected');
       setOpponentDisconnected(false);
+      setOpponentRequestedRestart(false);
+      setIRequestedRestart(false);
+      setRestartDeclined(false);
     }
   }, [socket]);
 
   return {
+    socket, // Exported for WebRTC
     roomId: roomIdRef.current,
     playerSymbol,
     board,
     currentTurn,
     winner,
+    winningLine,
     draw,
     status,
     error,
     opponentDisconnected,
+    opponentRequestedRestart,
+    iRequestedRestart,
+    restartDeclined,
     connect,
     createRoom,
     joinRoom,
     makeMove,
-    restartGame,
+    requestRestart,
+    acceptRestart,
+    declineRestart,
     leaveRoom
   };
 };

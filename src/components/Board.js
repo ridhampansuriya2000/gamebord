@@ -1,7 +1,7 @@
 import React from 'react';
 import Cell from './Cell';
 
-const Board = ({ board, onCellClick, isHumanTurn, winner, draw }) => {
+const Board = ({ board, onCellClick, isHumanTurn, winner, winningLine, draw }) => {
   // If game over or bot's turn, disable interaction
   const isBoardDisabled = !isHumanTurn || winner !== null || draw;
 
@@ -13,6 +13,7 @@ const Board = ({ board, onCellClick, isHumanTurn, winner, draw }) => {
           value={cellValue}
           onClick={() => onCellClick(index)}
           disabled={isBoardDisabled}
+          isWinningCell={winningLine?.includes(index)}
         />
       ))}
     </div>

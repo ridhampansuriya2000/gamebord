@@ -1,16 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { checkWinner, isDraw, getBestMove } from '../models/GameLogic';
+import { checkWinner, isDraw, getBestMove, getWinningLine } from '../models/GameLogic';
 
 export const useGame = () => {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isHumanTurn, setIsHumanTurn] = useState(true); // Human plays first by default
   const [winner, setWinner] = useState(null); // 'X' or 'O'
+  const [winningLine, setWinningLine] = useState(null);
   const [draw, setDraw] = useState(false);
 
   const resetGame = () => {
     setBoard(Array(9).fill(null));
     setIsHumanTurn(true);
     setWinner(null);
+    setWinningLine(null);
     setDraw(false);
   };
 
@@ -28,6 +30,7 @@ export const useGame = () => {
     const currentWinner = checkWinner(board);
     if (currentWinner) {
       setWinner(currentWinner);
+      setWinningLine(getWinningLine(board));
       return;
     }
 
@@ -57,6 +60,7 @@ export const useGame = () => {
     board,
     isHumanTurn,
     winner,
+    winningLine,
     draw,
     handleCellClick,
     resetGame,

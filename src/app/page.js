@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { useGame } from '../hooks/useGame';
 import { useOnlineGame } from '../hooks/useOnlineGame';
+import { useWebRTC } from '../hooks/useWebRTC';
 import Board from '../components/Board';
 
 export default function Home() {
@@ -15,8 +17,32 @@ export default function Home() {
   // Online Game Hook
   const onlineGame = useOnlineGame();
 
+  // WebRTC Voice Chat Hook
+  const rtc = useWebRTC(onlineGame.socket, onlineGame.roomId);
+
   // Determine which hook to use based on mode
   const activeGame = gameMode === 'online' ? onlineGame : localGame;
+
+  // Trigger confetti when a player wins
+  useEffect(() => {
+    if (activeGame.winner && activeGame.winner !== 'Draw') {
+      let isWinner = false;
+      if (gameMode === 'local') {
+        isWinner = activeGame.winner === 'O'; // Human is O
+      } else {
+        isWinner = activeGame.winner === activeGame.playerSymbol;
+      }
+
+      if (isWinner) {
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#34D399', '#38BDF8', '#FBBF24', '#F472B6']
+        });
+      }
+    }
+  }, [activeGame.winner, gameMode, activeGame.playerSymbol]);
 
   // Render Helpers
   const renderModeSelection = () => (
@@ -119,6 +145,40 @@ export default function Home() {
             <span className="text-xs text-slate-400 uppercase tracking-wider">Room Code</span>
             <span className="font-mono text-xl text-cyan-400 font-bold tracking-widest">{onlineGame.roomId}</span>
           </div>
+
+          {/* Voice Chat Controls */}
+          {onlineGame.status === 'playing' || onlineGame.status === 'finished' ? (
+             <div className="flex items-center gap-2">
+               {rtc.voiceError && <span className="text-xs text-red-400 mr-2">{rtc.voiceError}</span>}
+               
+               {!rtc.isVoiceActive ? (
+                 <button 
+                   onClick={rtc.startVoiceChat}
+                   className="px-3 py-1.5 bg-green-500/20 border border-green-500/50 rounded-lg text-sm font-medium hover:bg-green-500/30 transition-colors flex items-center gap-2"
+                 >
+                   <span>🎤</span> Join Voice
+                 </button>
+               ) : (
+                 <div className="flex items-center gap-2 bg-black/20 rounded-lg p-1 border border-white/10">
+                   <button 
+                     onClick={rtc.toggleMute}
+                     className={`p-2 rounded-md transition-colors ${rtc.isMuted ? 'bg-red-500/50 hover:bg-red-500/70' : 'bg-white/10 hover:bg-white/20'}`}
+                   >
+                     {rtc.isMuted ? '🔇' : '🎙️'}
+                   </button>
+                   <button 
+                     onClick={rtc.stopVoiceChat}
+                     className="p-2 bg-red-500/20 hover:bg-red-500/40 rounded-md transition-colors text-xs font-bold"
+                   >
+                     Disconnect
+                   </button>
+                 </div>
+               )}
+               {/* Hidden audio element to play remote voice */}
+               <audio ref={rtc.remoteAudioRef} autoPlay />
+             </div>
+          ) : null}
+
           <div className="flex flex-col items-end">
             <span className="text-xs text-slate-400 uppercase tracking-wider">You are</span>
             <span className={`text-xl font-bold ${onlineGame.playerSymbol === 'X' ? 'text-rose-400' : 'text-cyan-400'}`}>
@@ -155,13 +215,18 @@ export default function Home() {
     
     if (winner) {
       let winnerText = '';
+      let isWin = false;
+      
       if (gameMode === 'local') {
-        winnerText = winner === 'X' ? 'Bot Wins!' : 'You Win!';
+        isWin = winner === 'O'; // Human is O
+        winnerText = winner === 'X' ? 'Bot Wins!' : 'You Win! 🎉';
       } else {
-        winnerText = winner === activeGame.playerSymbol ? 'You Win! 🎉' : 'Opponent Wins! 💀';
+        isWin = winner === activeGame.playerSymbol;
+        winnerText = isWin ? 'You Win! 🎉' : 'Opponent Wins! 💀';
       }
+      
       return (
-        <div className={`text-3xl font-bold animate-in slide-in-from-bottom-2 fade-in duration-300 ${winner === 'X' ? 'text-rose-400' : 'text-cyan-400'}`}>
+        <div className={`text-3xl sm:text-4xl font-black animate-in zoom-in-110 fade-in duration-500 ${isWin ? 'text-green-400 drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]' : 'text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]'}`}>
           {winnerText}
         </div>
       );
@@ -200,13 +265,76 @@ export default function Home() {
     );
   };
 
-  const getPlayAgainText = () => {
-    if (gameMode === 'local') return 'Play Again';
-    return 'Request Restart'; // Can improve this if both need to accept
+  const renderRestartControls = () => {
+    if (!activeGame.winner && !activeGame.draw) return null;
+
+    if (gameMode === 'local') {
+      return (
+        <button
+          onClick={activeGame.resetGame}
+          className="group relative px-5 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-semibold rounded-xl border border-white/20 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] animate-in slide-in-from-right-2 fade-in duration-300"
+        >
+          <span className="relative z-10 flex items-center gap-2 whitespace-nowrap">
+            Play Again
+          </span>
+        </button>
+      );
+    }
+
+    // Online Mode Restart Logic
+    if (onlineGame.opponentRequestedRestart) {
+      return (
+        <div className="flex flex-col items-center gap-2 animate-in slide-in-from-bottom-2 fade-in duration-300">
+          <span className="text-sm text-yellow-300 animate-pulse">Opponent wants to play again!</span>
+          <div className="flex gap-2">
+            <button
+              onClick={onlineGame.acceptRestart}
+              className="px-4 py-2 bg-green-500/20 hover:bg-green-500/40 border border-green-500/50 text-white rounded-lg transition-all"
+            >
+              Accept
+            </button>
+            <button
+              onClick={onlineGame.declineRestart}
+              className="px-4 py-2 bg-red-500/20 hover:bg-red-500/40 border border-red-500/50 text-white rounded-lg transition-all"
+            >
+              Decline
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (onlineGame.restartDeclined) {
+      return (
+        <div className="px-5 py-2.5 bg-red-500/20 border border-red-500/50 text-red-200 rounded-xl">
+          Opponent declined.
+        </div>
+      );
+    }
+
+    if (onlineGame.iRequestedRestart) {
+      return (
+        <div className="px-5 py-2.5 bg-white/5 border border-white/10 text-slate-300 rounded-xl animate-pulse">
+          Waiting for opponent to accept...
+        </div>
+      );
+    }
+
+    return (
+      <button
+        onClick={onlineGame.requestRestart}
+        className="group relative px-5 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-semibold rounded-xl border border-white/20 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+      >
+        <span className="relative z-10 flex items-center gap-2 whitespace-nowrap">
+          Request Restart
+        </span>
+      </button>
+    );
   };
 
   const handleLeaveOrBack = () => {
     if (gameMode === 'online') {
+      rtc.stopVoiceChat();
       onlineGame.leaveRoom();
     } else {
       activeGame.resetGame();
@@ -250,23 +378,9 @@ export default function Home() {
             {renderGameHeader()}
 
             {/* Game Status */}
-            <div className="min-h-[4rem] flex flex-row items-center justify-center gap-6 mb-4 w-full">
+            <div className="min-h-[4rem] flex flex-col items-center justify-center gap-4 mb-4 w-full">
               {getStatusDisplay()}
-
-              {(activeGame.winner || activeGame.draw) && (
-                <button
-                  onClick={activeGame.restartGame || activeGame.resetGame}
-                  className="group relative px-5 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-semibold rounded-xl border border-white/20 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] animate-in slide-in-from-right-2 fade-in duration-300"
-                >
-                  <span className="relative z-10 flex items-center gap-2 text-sm sm:text-base whitespace-nowrap">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-500 group-hover:rotate-180">
-                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                      <path d="M3 3v5h5"/>
-                    </svg>
-                    {getPlayAgainText()}
-                  </span>
-                </button>
-              )}
+              {renderRestartControls()}
             </div>
 
             {/* Game Board */}
@@ -276,6 +390,7 @@ export default function Home() {
                 onCellClick={gameMode === 'online' ? activeGame.makeMove : activeGame.handleCellClick}
                 isHumanTurn={!isBoardDisabled} 
                 winner={activeGame.winner}
+                winningLine={activeGame.winningLine}
                 draw={activeGame.draw}
               />
             </div>
@@ -288,21 +403,6 @@ export default function Home() {
               >
                 {gameMode === 'online' ? 'Leave Room' : 'Back to Menu'}
               </button>
-
-              {!activeGame.winner && !activeGame.draw && gameMode === 'local' && (
-                <button
-                  onClick={activeGame.resetGame}
-                  className="group relative px-6 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-semibold rounded-xl border border-white/20 transition-all duration-300 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-500">
-                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                      <path d="M3 3v5h5"/>
-                    </svg>
-                    Restart Game
-                  </span>
-                </button>
-              )}
             </div>
 
           </div>
