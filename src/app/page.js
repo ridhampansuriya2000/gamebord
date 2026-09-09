@@ -149,6 +149,12 @@ export default function Home() {
           {/* Voice Chat Controls */}
           {onlineGame.status === 'playing' || onlineGame.status === 'finished' ? (
              <div className="flex items-center gap-2">
+               {rtc.opponentVoiceActive && (
+                 <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-md animate-pulse border border-green-500/30 flex items-center gap-1 mr-2">
+                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                   Opponent in Voice
+                 </span>
+               )}
                {rtc.voiceError && <span className="text-xs text-red-400 mr-2">{rtc.voiceError}</span>}
                
                {!rtc.isVoiceActive ? (
@@ -219,7 +225,7 @@ export default function Home() {
       
       if (gameMode === 'local') {
         isWin = winner === 'O'; // Human is O
-        winnerText = winner === 'X' ? 'Bot Wins!' : 'You Win! 🎉';
+        winnerText = winner === 'X' ? 'You Lose! 💀' : 'You Win! 🎉';
       } else {
         isWin = winner === activeGame.playerSymbol;
         winnerText = isWin ? 'You Win! 🎉' : 'Opponent Wins! 💀';
@@ -234,8 +240,9 @@ export default function Home() {
     
     if (draw) {
       return (
-        <div className="text-3xl font-bold text-slate-300 animate-in slide-in-from-bottom-2 fade-in duration-300">
-          It's a Draw! 🤝
+        <div className="text-2xl sm:text-3xl font-bold text-slate-300 animate-in slide-in-from-bottom-2 fade-in duration-300 text-center">
+          Oops! Better luck next time! 🍀<br/>
+          <span className="text-lg text-slate-400">Try again!</span>
         </div>
       );
     }

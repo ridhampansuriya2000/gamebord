@@ -4,6 +4,8 @@ export const useWebRTC = (socket, roomId) => {
   const [isVoiceActive, setIsVoiceActive] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [voiceError, setVoiceError] = useState(null);
+  const [opponentVoiceActive, setOpponentVoiceActive] = useState(false);
+  
   const peerConnectionRef = useRef(null);
   const localStreamRef = useRef(null);
   const remoteAudioRef = useRef(null);
@@ -14,6 +16,10 @@ export const useWebRTC = (socket, roomId) => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       localStreamRef.current = stream;
       setIsVoiceActive(true);
+
+      if (socket && roomId) {
+        socket.emit('voice-status', { roomId, isActive: true });
+      }
 
       const configuration = {
         iceServers: [
@@ -69,7 +75,11 @@ export const useWebRTC = (socket, roomId) => {
     }
     setIsVoiceActive(false);
     setIsMuted(false);
-  }, []);
+    
+    if (socket && roomId) {
+      socket.emit('voice-status', { roomId, isActive: false });
+    }
+  }, [socket, roomId]);
 
   const toggleMute = useCallback(() => {
     if (localStreamRef.current) {
@@ -83,7 +93,7 @@ export const useWebRTC = (socket, roomId) => {
 
   // Socket signaling listeners
   useEffect(() => {
-    if (!socket || !isVoiceActive) return;
+    if (!socket) return;
 
     const handleOffer = async (offer) => {
       if (!peerConnectionRef.current) return;
@@ -106,17 +116,23 @@ export const useWebRTC = (socket, roomId) => {
         console.error('Error adding received ice candidate', e);
       }
     };
+    
+    const handleVoiceStatus = ({ isActive }) => {
+      setOpponentVoiceActive(isActive);
+    };
 
     socket.on('webrtc-offer', handleOffer);
     socket.on('webrtc-answer', handleAnswer);
     socket.on('webrtc-ice-candidate', handleIceCandidate);
+    socket.on('opponent-voice-status', handleVoiceStatus);
 
     return () => {
       socket.off('webrtc-offer', handleOffer);
       socket.off('webrtc-answer', handleAnswer);
       socket.off('webrtc-ice-candidate', handleIceCandidate);
+      socket.off('opponent-voice-status', handleVoiceStatus);
     };
-  }, [socket, roomId, isVoiceActive]);
+  }, [socket, roomId]);
 
   // Clean up on unmount
   useEffect(() => {
@@ -127,6 +143,7 @@ export const useWebRTC = (socket, roomId) => {
     isVoiceActive,
     isMuted,
     voiceError,
+    opponentVoiceActive,
     startVoiceChat,
     stopVoiceChat,
     toggleMute,
