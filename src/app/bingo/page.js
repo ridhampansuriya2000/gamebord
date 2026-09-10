@@ -214,7 +214,7 @@ export default function BingoHome() {
 
   // Determine game states
   let status = activeGame.status;
-  if (gameMode === 'online' && status === 'waiting') status = 'lobby';
+  if (gameMode === 'online' && status === 'waiting') status = 'setup';
 
   let turnMessage = '';
   let isMyTurn = false;
