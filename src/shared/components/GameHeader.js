@@ -1,86 +1,133 @@
-import React from 'react';
+'use client';
+import React, { useState } from 'react';
 
 /**
- * Shared GameHeader for all online games.
- * 
- * @param {string} gameMode - 'local' | 'online'
- * @param {string} roomId - active room ID
- * @param {string} playerSymbol - 'X' | 'O'
- * @param {string} status - current game status
- * @param {object} rtc - result of useWebRTC hook (startVoiceChat, stopVoiceChat, isVoiceActive, ...)
+ * Compact shared GameHeader for all online games.
+ * Shows: [← Leave] [RoomCode 📋] [Player badge] ... [voice controls]
+ * All controls are icon-first, minimal text to keep vertical space low.
  */
-export default function GameHeader({ gameMode, roomId, playerSymbol, status, rtc }) {
+export default function GameHeader({ gameMode, roomId, playerSymbol, status, rtc, onLeave }) {
   if (gameMode !== 'online') return null;
 
-  // Support both naming conventions from different hooks
+  const [copied, setCopied] = useState(false);
+
   const startVoice = rtc.startVoice ?? rtc.startVoiceChat;
   const stopVoice = rtc.stopVoice ?? rtc.stopVoiceChat;
   const inGame = status === 'playing' || status === 'finished' || status === 'setup';
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(roomId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
   return (
-    <div className="flex items-center justify-between w-full mb-6 px-2">
-      {/* Left: Room Code + Player Badge */}
-      <div className="flex flex-col gap-1">
-        <span className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Room Code</span>
-        <div className="flex items-center gap-2">
-          <span className="text-2xl sm:text-3xl font-bold font-mono tracking-widest text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+    <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl mb-3">
+      
+      {/* Left: Room code + player badge */}
+      <div className="flex items-center gap-2 min-w-0">
+        {/* Room code */}
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 group"
+          title="Copy Room Code"
+        >
+          <span className="font-mono text-sm sm:text-base font-bold tracking-widest text-cyan-400 group-hover:text-cyan-300 transition-colors">
             {roomId}
           </span>
-          <button
-            onClick={() => navigator.clipboard.writeText(roomId)}
-            className="p-1.5 bg-white/5 hover:bg-white/15 rounded-lg border border-white/10 transition-colors"
-            title="Copy Room Code"
-          >
-            📋
-          </button>
-        </div>
+          <span className="text-xs transition-all">
+            {copied ? '✅' : '📋'}
+          </span>
+        </button>
+
+        {/* Divider */}
+        <span className="text-white/20 text-xs">|</span>
+
+        {/* Player symbol badge */}
         {playerSymbol && (
-          <span className="text-xs text-cyan-200 font-bold bg-cyan-900/40 px-2 py-0.5 rounded-md border border-cyan-800/50 w-max">
-            You are Player {playerSymbol}
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
+            playerSymbol === 'X'
+              ? 'text-rose-300 bg-rose-500/15 border-rose-500/30'
+              : 'text-cyan-300 bg-cyan-500/15 border-cyan-500/30'
+          }`}>
+            P{playerSymbol}
           </span>
         )}
       </div>
 
-      {/* Right: Voice Controls or Waiting Indicator */}
+      {/* Right: Voice controls */}
       {inGame ? (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {/* Opponent voice indicator */}
           {rtc.opponentVoiceActive && (
             <span
-              className="bg-green-500/20 text-green-300 px-2 py-1.5 rounded-md animate-pulse border border-green-500/30 flex items-center gap-1.5"
-              title="Opponent has voice chat enabled"
-            >
-              <span className="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
-              <span className="text-sm">🎧</span>
-            </span>
+              className="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_6px_rgba(74,222,128,0.9)] animate-pulse"
+              title="Opponent is in voice"
+            />
           )}
 
-          {/* Error */}
+          {/* Voice error */}
           {rtc.voiceError && (
-            <span className="text-xs text-red-400">{rtc.voiceError}</span>
+            <span className="text-xs text-red-400" title={rtc.voiceError}>⚠️</span>
           )}
 
-          {/* Mic toggle button */}
-          <button
-            onClick={rtc.isVoiceActive ? stopVoice : startVoice}
-            className={`p-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 border ${
-              rtc.isVoiceActive
-                ? 'bg-red-500/20 text-red-300 border-red-500/50 hover:bg-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.3)]'
-                : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
-            }`}
-            title={rtc.isVoiceActive ? 'Mute Microphone' : 'Enable Voice Chat'}
-          >
-            <span>{rtc.isVoiceActive ? '🎙️' : '🎤'}</span>
-            <span className="hidden sm:inline">{rtc.isVoiceActive ? 'Disable Mic' : 'Enable Voice'}</span>
-          </button>
+          {!rtc.isVoiceActive ? (
+            /* Join voice */
+            <button
+              onClick={startVoice}
+              title="Join Voice Chat"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition-all"
+            >
+              <span>🎤</span>
+              <span className="hidden sm:inline">Join Voice</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-1">
+              {/* Mute/Unmute mic */}
+              <button
+                onClick={rtc.toggleMic ?? rtc.toggleMute}
+                title={rtc.isMicMuted ? 'Unmute Mic' : 'Mute Mic'}
+                className={`p-1.5 rounded-lg text-sm border transition-all ${
+                  rtc.isMicMuted
+                    ? 'bg-red-500/30 text-red-300 border-red-500/50 hover:bg-red-500/40'
+                    : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                }`}
+              >
+                {rtc.isMicMuted ? '🔇' : '🎙️'}
+              </button>
 
-          {/* Hidden audio element to play remote stream */}
+              {/* Mute/Unmute speaker */}
+              <button
+                onClick={rtc.toggleSpeaker}
+                title={rtc.isSpeakerMuted ? 'Unmute Speaker' : 'Mute Speaker'}
+                className={`p-1.5 rounded-lg text-sm border transition-all ${
+                  rtc.isSpeakerMuted
+                    ? 'bg-orange-500/30 text-orange-300 border-orange-500/50 hover:bg-orange-500/40'
+                    : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                }`}
+              >
+                {rtc.isSpeakerMuted ? '🔈' : '🔊'}
+              </button>
+
+              {/* Leave voice */}
+              <button
+                onClick={stopVoice}
+                title="Leave Voice Chat"
+                className="p-1.5 rounded-lg text-sm border bg-red-500/20 text-red-300 border-red-500/40 hover:bg-red-500/30 transition-all"
+              >
+                📵
+              </button>
+            </div>
+          )}
+
+          {/* Hidden audio to play opponent voice */}
           {rtc.remoteAudioRef && <audio ref={rtc.remoteAudioRef} autoPlay />}
         </div>
       ) : (
-        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg">
-          <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-          <span className="text-sm text-yellow-200">Waiting for opponent...</span>
+        /* Waiting indicator */
+        <div className="flex items-center gap-1.5 text-xs text-yellow-300">
+          <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse" />
+          <span className="hidden sm:inline">Waiting...</span>
         </div>
       )}
     </div>

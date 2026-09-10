@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 export const useWebRTC = (socket, roomId) => {
   const [isVoiceActive, setIsVoiceActive] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMicMuted, setIsMicMuted] = useState(false);
+  const [isSpeakerMuted, setIsSpeakerMuted] = useState(false);
   const [voiceError, setVoiceError] = useState(null);
   const [opponentVoiceActive, setOpponentVoiceActive] = useState(false);
   
@@ -16,6 +17,8 @@ export const useWebRTC = (socket, roomId) => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       localStreamRef.current = stream;
       setIsVoiceActive(true);
+      setIsMicMuted(false);
+      setIsSpeakerMuted(false);
 
       if (socket && roomId) {
         socket.emit('voice-status', { roomId, isActive: true });
@@ -23,7 +26,7 @@ export const useWebRTC = (socket, roomId) => {
 
       const configuration = {
         iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' }, // Free public STUN server
+          { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:stun1.l.google.com:19302' }
         ]
       };
@@ -74,20 +77,33 @@ export const useWebRTC = (socket, roomId) => {
       peerConnectionRef.current = null;
     }
     setIsVoiceActive(false);
-    setIsMuted(false);
+    setIsMicMuted(false);
+    setIsSpeakerMuted(false);
     
     if (socket && roomId) {
       socket.emit('voice-status', { roomId, isActive: false });
     }
   }, [socket, roomId]);
 
-  const toggleMute = useCallback(() => {
+  // Toggle microphone (mute/unmute your own mic)
+  const toggleMic = useCallback(() => {
     if (localStreamRef.current) {
       const audioTrack = localStreamRef.current.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
-        setIsMuted(!audioTrack.enabled);
+        setIsMicMuted(!audioTrack.enabled);
       }
+    }
+  }, []);
+
+  // Keep backward compat alias
+  const toggleMute = toggleMic;
+
+  // Toggle speaker (mute/unmute opponent's audio)
+  const toggleSpeaker = useCallback(() => {
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.muted = !remoteAudioRef.current.muted;
+      setIsSpeakerMuted(prev => !prev);
     }
   }, []);
 
@@ -141,12 +157,16 @@ export const useWebRTC = (socket, roomId) => {
 
   return {
     isVoiceActive,
-    isMuted,
+    isMicMuted,
+    isMuted: isMicMuted, // backward compat
+    isSpeakerMuted,
     voiceError,
     opponentVoiceActive,
     startVoiceChat,
     stopVoiceChat,
-    toggleMute,
+    toggleMic,
+    toggleMute, // backward compat
+    toggleSpeaker,
     remoteAudioRef
   };
 };
