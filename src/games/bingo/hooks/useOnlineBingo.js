@@ -34,6 +34,11 @@ export const useOnlineBingo = () => {
   const [error, setError] = useState('');
   const [opponentReady, setOpponentReady] = useState(false);
   const [opponentLeft, setOpponentLeft] = useState(false);
+  
+  // Restart states
+  const [opponentRequestedRestart, setOpponentRequestedRestart] = useState(false);
+  const [iRequestedRestart, setIRequestedRestart] = useState(false);
+  const [restartDeclined, setRestartDeclined] = useState(false);
 
   const setRoom = (id) => {
     roomIdRef.current = id;
@@ -72,6 +77,8 @@ export const useOnlineBingo = () => {
 
     newSocket.on('error', ({ message }) => {
       setError(message);
+      setStatus('connected');
+      setRoom('');
       setTimeout(() => setError(''), 3000);
     });
 
@@ -134,7 +141,19 @@ export const useOnlineBingo = () => {
       setWinner(null);
       setOpponentReady(false);
       setOpponentLeft(false);
+      setOpponentRequestedRestart(false);
+      setIRequestedRestart(false);
+      setRestartDeclined(false);
       setStatus('setup');
+    });
+
+    newSocket.on('bingo-restart-requested', () => {
+      setOpponentRequestedRestart(true);
+    });
+
+    newSocket.on('bingo-restart-declined', () => {
+      setRestartDeclined(true);
+      setIRequestedRestart(false);
     });
 
     // Opponent reconnected after a disconnect
@@ -188,8 +207,20 @@ export const useOnlineBingo = () => {
   };
 
   const requestRestart = () => {
-    if (!socket) return;
-    socket.emit('bingo-accept-restart', { roomId: roomIdRef.current });
+      if (!socket) return;
+      setIRequestedRestart(true);
+      socket.emit('bingo-request-restart', { roomId: roomIdRef.current });
+  };
+
+  const acceptRestart = () => {
+      if (!socket) return;
+      socket.emit('bingo-accept-restart', { roomId: roomIdRef.current });
+  };
+
+  const declineRestart = () => {
+      if (!socket) return;
+      setOpponentRequestedRestart(false);
+      socket.emit('bingo-decline-restart', { roomId: roomIdRef.current });
   };
 
   const leaveRoom = () => {
@@ -207,6 +238,9 @@ export const useOnlineBingo = () => {
     setOpponentReady(false);
     setOpponentJoined(false);
     setOpponentLeft(false);
+    setOpponentRequestedRestart(false);
+    setIRequestedRestart(false);
+    setRestartDeclined(false);
     setError('');
   };
 
@@ -223,6 +257,9 @@ export const useOnlineBingo = () => {
     opponentReady,
     opponentJoined,
     opponentLeft,
+    opponentRequestedRestart,
+    iRequestedRestart,
+    restartDeclined,
     socket, // Expose for WebRTC
     connect,
     createRoom,
@@ -230,6 +267,8 @@ export const useOnlineBingo = () => {
     submitBoard,
     callNumber,
     requestRestart,
+    acceptRestart,
+    declineRestart,
     leaveRoom
   };
 };

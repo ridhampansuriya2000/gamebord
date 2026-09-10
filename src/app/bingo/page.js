@@ -75,25 +75,95 @@ export default function BingoHome() {
     }
   }
 
+  const renderRestartControls = () => {
+    if (status !== 'finished') return null;
+
+    if (gameMode === 'local') {
+      return (
+        <button
+          onClick={activeGame.resetGame}
+          className="group relative px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-xl font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+          <span className="relative z-10 flex items-center gap-2">
+            🔄 Play Again
+          </span>
+        </button>
+      );
+    }
+
+    if (onlineGame.opponentRequestedRestart) {
+      return (
+        <div className="flex flex-col items-center gap-2 animate-in slide-in-from-bottom-2 fade-in duration-300">
+          <span className="text-sm text-yellow-300 animate-pulse">Opponent wants to play again!</span>
+          <div className="flex gap-2">
+            <button
+              onClick={onlineGame.acceptRestart}
+              className="px-4 py-2 bg-green-500/20 hover:bg-green-500/40 border border-green-500/50 text-white rounded-lg transition-all"
+            >
+              Accept
+            </button>
+            <button
+              onClick={onlineGame.declineRestart}
+              className="px-4 py-2 bg-red-500/20 hover:bg-red-500/40 border border-red-500/50 text-white rounded-lg transition-all"
+            >
+              Decline
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (onlineGame.restartDeclined) {
+      return (
+        <div className="px-5 py-2.5 bg-red-500/20 border border-red-500/50 text-red-200 rounded-xl">
+          Opponent declined.
+        </div>
+      );
+    }
+
+    if (onlineGame.iRequestedRestart) {
+      return (
+        <div className="px-5 py-2.5 bg-white/5 border border-white/10 text-slate-300 rounded-xl animate-pulse">
+          Waiting for opponent to accept...
+        </div>
+      );
+    }
+
+    return (
+      <button
+        onClick={onlineGame.requestRestart}
+        className="group relative px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-xl font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden"
+      >
+        <span className="relative z-10 flex items-center gap-2">
+          Request Restart
+        </span>
+      </button>
+    );
+  };
+
   // Render logic
   const renderBingoWord = (board, isLitFn) => (
-    <div className="flex flex-col gap-1.5 mt-4">
-      {['B', 'I', 'N', 'G', 'O'].map((letter, index) => {
-        const linesCount = board ? getCompletedLines(board, activeGame.calledNumbers).count : 0;
-        const isLit = isLitFn ? isLitFn(linesCount, index) : linesCount > index;
-        return (
-          <div 
-            key={index} 
-            className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md font-black text-sm sm:text-base transition-all duration-500 ${
-              isLit 
-                ? (isLitFn ? 'bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.8)] scale-110' : 'bg-yellow-400 text-slate-900 shadow-[0_0_12px_rgba(250,204,21,0.8)] scale-110')
-                : 'bg-white/5 text-slate-500 border border-white/10'
-            }`}
-          >
-            {letter}
-          </div>
-        );
-      })}
+    <div className="flex flex-col items-center gap-2">
+      <span className="text-[11px] font-semibold text-transparent select-none uppercase tracking-widest">BINGO</span>
+      <div className="flex flex-col gap-1.5 sm:gap-2 p-3 sm:p-4 rounded-xl border border-transparent h-full justify-between">
+        {['B', 'I', 'N', 'G', 'O'].map((letter, index) => {
+          const linesCount = board ? getCompletedLines(board, activeGame.calledNumbers).count : 0;
+          const isLit = isLitFn ? isLitFn(linesCount, index) : linesCount > index;
+          return (
+            <div 
+              key={index} 
+              className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-md font-black text-sm sm:text-base transition-all duration-500 ${
+                isLit 
+                  ? (isLitFn ? 'bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.8)] scale-110' : 'bg-yellow-400 text-slate-900 shadow-[0_0_12px_rgba(250,204,21,0.8)] scale-110')
+                  : 'bg-white/5 text-slate-500 border border-white/10'
+              }`}
+            >
+              {letter}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 
@@ -242,9 +312,30 @@ export default function BingoHome() {
                 {/* ── Boards Layout ── */}
                 <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center justify-center w-full">
                   
-                  {/* Opponent Area (Finished Only) */}
+                  {/* Your Area (Left side) */}
+                  <div className="flex gap-4 md:gap-6 items-start">
+                    {/* 4. Your Board */}
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Your Board</span>
+                      <BingoBoard 
+                        board={activeGame.humanBoard} 
+                        calledNumbers={activeGame.calledNumbers}
+                        isInteractive={isMyTurn && status === 'playing'}
+                        onNumberClick={(num) => activeGame.callNumber(num)}
+                        isOpponentBoard={false}
+                      />
+                    </div>
+
+                    {/* 3. Your BINGO Word (Vertical on RIGHT of your board) */}
+                    {renderBingoWord(activeGame.humanBoard, null)}
+                  </div>
+
+                  {/* Opponent Area (Right side, Finished Only) */}
                   {status === 'finished' && (
                     <div className="flex gap-4 md:gap-6 items-start">
+                      {/* 2. Bot/Opponent BINGO Word (Vertical on the LEFT of their board) */}
+                      {renderBingoWord(gameMode === 'local' ? activeGame.botBoard : activeGame.opponentBoard, (lines, idx) => lines > idx)}
+
                       {/* 1. Opponent Board */}
                       <div className="flex flex-col items-center gap-2">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
@@ -258,50 +349,15 @@ export default function BingoHome() {
                           isOpponentBoard={true}
                         />
                       </div>
-
-                      {/* 2. Bot/Opponent BINGO Word (Vertical on the right of their board) */}
-                      {renderBingoWord(gameMode === 'local' ? activeGame.botBoard : activeGame.opponentBoard, (lines, idx) => lines > idx)}
                     </div>
                   )}
-
-                  {/* Your Area */}
-                  <div className="flex gap-4 md:gap-6 items-start">
-                    {/* 3. Your BINGO Word (Vertical on LEFT if finished) */}
-                    {status === 'finished' && renderBingoWord(activeGame.humanBoard, null)}
-
-                    {/* 4. Your Board */}
-                    <div className="flex flex-col items-center gap-2">
-                      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Your Board</span>
-                      <BingoBoard 
-                        board={activeGame.humanBoard} 
-                        calledNumbers={activeGame.calledNumbers}
-                        isInteractive={isMyTurn && status === 'playing'}
-                        onNumberClick={(num) => activeGame.callNumber(num)}
-                        isOpponentBoard={false}
-                      />
-                    </div>
-
-                    {/* 3. Your BINGO Word (Vertical on RIGHT if playing) */}
-                    {status === 'playing' && renderBingoWord(activeGame.humanBoard, null)}
-                  </div>
 
                 </div>
 
                 {/* Post-Game Controls */}
                 {status === 'finished' && (
                   <div className="mt-10 flex gap-4 animate-in slide-in-from-bottom-4 duration-500">
-                    <button
-                      onClick={() => {
-                        if (gameMode === 'local') activeGame.resetGame();
-                        else activeGame.requestRestart();
-                      }}
-                      className="group relative px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-xl font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
-                      <span className="relative z-10 flex items-center gap-2">
-                        🔄 Play Again
-                      </span>
-                    </button>
+                    {renderRestartControls()}
                   </div>
                 )}
               </div>

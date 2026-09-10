@@ -64,12 +64,13 @@ export default function BingoSetup({ onComplete }) {
         </div>
       )}
 
-      <div className="grid grid-cols-5 gap-1.5 sm:gap-2 mb-6 w-full p-3 sm:p-4 rounded-xl backdrop-blur-md border border-white/20 bg-white/5 shadow-xl">
+      <div className="flex flex-col items-center">
+        <div className="grid grid-cols-5 gap-1.5 sm:gap-2 mb-6 p-3 sm:p-4 rounded-xl backdrop-blur-md border shadow-xl bg-white/10 border-white/20">
         {board.map((val, i) => (
           <div 
             key={i} 
             onClick={() => handleCellClick(i)}
-            className={`aspect-square relative flex items-center justify-center rounded-lg text-lg sm:text-xl font-bold cursor-pointer transition-all duration-200 select-none ${
+            className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 relative flex items-center justify-center rounded-lg text-lg sm:text-xl font-bold cursor-pointer transition-all duration-200 select-none ${
               val !== '' 
                 ? 'bg-white/20 border border-white/40 text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]' 
                 : 'bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/30 text-transparent'
@@ -78,6 +79,7 @@ export default function BingoSetup({ onComplete }) {
             {val}
           </div>
         ))}
+        </div>
       </div>
 
       <div className="flex gap-4 w-full">
