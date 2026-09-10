@@ -242,25 +242,21 @@ export default function Home() {
         )}
 
         {(gameMode === 'local' || (gameMode === 'online' && onlineGame.roomId)) && (
-          <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500">
-            {/* Top Bar (Leave + GameHeader) */}
-            <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
-              <button
-                onClick={handleLeaveOrBack}
-                className="flex items-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-sm font-semibold rounded-lg border border-white/10 transition-all flex-shrink-0"
-              >
-                ← {gameMode === 'online' ? 'Leave' : 'Back'}
-              </button>
-              <div className="w-full sm:w-auto flex justify-end">
-                <GameHeader
-                  gameMode={gameMode}
-                  roomId={onlineGame.roomId}
-                  playerSymbol={onlineGame.playerSymbol}
-                  status={onlineGame.status}
-                  rtc={rtc}
-                />
-              </div>
-            </div>
+          <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500 mt-10">
+            {/* Top Bar Fixed Controls */}
+            <button
+              onClick={handleLeaveOrBack}
+              className="fixed top-4 left-4 z-50 flex items-center gap-2 px-4 py-2.5 bg-slate-900/90 hover:bg-slate-800 backdrop-blur-md text-slate-200 hover:text-white text-sm font-bold rounded-xl border border-white/10 shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+            >
+              ← {gameMode === 'online' ? 'Leave' : 'Back'}
+            </button>
+            <GameHeader
+              gameMode={gameMode}
+              roomId={onlineGame.roomId}
+              playerSymbol={onlineGame.playerSymbol}
+              status={onlineGame.status}
+              rtc={rtc}
+            />
 
             {/* Game Status */}
             <div className="min-h-[4rem] flex flex-col items-center justify-center gap-4 mb-4 w-full">
