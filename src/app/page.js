@@ -47,7 +47,16 @@ export default function GameHub() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-4 animate-in zoom-in-95 duration-500">
           {games.map((game) => (
-            game.disabled ? (
+            game.id === 'bingo' ? (
+              <Link href="/bingo" className="group flex flex-col bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 hover:border-cyan-400 rounded-3xl p-8 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+                <div className="text-5xl mb-4 group-hover:-translate-y-2 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]">🎱</div>
+                <h2 className="text-2xl font-bold text-slate-200 mb-2">Bingo</h2>
+                <p className="text-slate-400">Classic 5x5 strategy game.</p>
+                <div className="mt-6 text-sm font-semibold text-cyan-400 flex items-center gap-2 group-hover:gap-3 transition-all">
+                  Play Now <span className="text-lg">→</span>
+                </div>
+              </Link>
+            ) : game.disabled ? (
               <div 
                 key={game.id}
                 className={`p-6 rounded-2xl bg-gradient-to-br ${game.color} border ${game.border} backdrop-blur-md opacity-60 flex flex-col h-full`}
