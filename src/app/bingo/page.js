@@ -144,9 +144,31 @@ export default function BingoHome() {
           />
         )}
 
+        {/* Waiting for opponent to join (room creator) */}
+        {gameMode === 'online' && status === 'waiting' && (
+          <div className="flex flex-col items-center gap-6 animate-in slide-in-from-bottom-4 duration-500 w-full max-w-sm">
+            <div className="w-full flex justify-start">
+              <button onClick={handleLeaveOrBack} className="text-slate-400 hover:text-white transition-colors flex items-center gap-2">
+                ← Leave Room
+              </button>
+            </div>
+            <GameHeader 
+              gameMode={gameMode}
+              roomId={onlineGame.roomId}
+              playerSymbol={onlineGame.playerSymbol}
+              status="setup"
+              rtc={rtc}
+            />
+            <div className="flex flex-col items-center gap-3 py-8">
+              <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-slate-300 text-lg font-semibold">Waiting for opponent to join...</p>
+              <p className="text-slate-500 text-sm">Share your Room Code above with a friend</p>
+            </div>
+          </div>
+        )}
+
         {gameMode && status === 'setup' && (
           <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500">
-            {/* Top Back/Leave Button */}
             <div className="w-full flex justify-start mb-4">
               <button
                 onClick={handleLeaveOrBack}
@@ -159,13 +181,25 @@ export default function BingoHome() {
             <GameHeader 
               gameMode={gameMode}
               roomId={onlineGame.roomId}
-              playerSymbol={activeGame.playerSymbol}
+              playerSymbol={onlineGame.playerSymbol}
               status={onlineGame.status}
               rtc={rtc}
             />
-            
-            {gameMode === 'online' && onlineGame.humanBoard && !onlineGame.opponentReady && (
-              <div className="mb-4 text-yellow-300 animate-pulse">Waiting for opponent to create their board...</div>
+
+            {/* Opponent status messages */}
+            {gameMode === 'online' && onlineGame.opponentLeft && (
+              <div className="mb-4 w-full p-3 bg-red-500/20 border border-red-500/40 rounded-lg text-red-200 text-center">
+                ⚠️ Opponent left the room.
+              </div>
+            )}
+            {gameMode === 'online' && !onlineGame.opponentJoined && !onlineGame.opponentLeft && (
+              <div className="mb-4 text-yellow-300 animate-pulse text-center">Waiting for opponent to join...</div>
+            )}
+            {gameMode === 'online' && onlineGame.opponentJoined && !onlineGame.opponentReady && onlineGame.humanBoard && (
+              <div className="mb-4 text-cyan-300 animate-pulse text-center">Opponent is setting up their board...</div>
+            )}
+            {gameMode === 'online' && onlineGame.opponentJoined && !onlineGame.humanBoard && (
+              <div className="mb-4 text-green-300 text-center">✅ Opponent joined! Create your board to start.</div>
             )}
             
             {!(gameMode === 'online' && onlineGame.humanBoard) && (

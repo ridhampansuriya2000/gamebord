@@ -72,19 +72,10 @@ export default function Home() {
 
 
   const getStatusDisplay = () => {
-    if (gameMode === 'online' && onlineGame.status === 'waiting') {
-      return (
-        <div className="text-xl text-slate-300 animate-pulse text-center">
-          Waiting for opponent to join...<br/>
-          <span className="text-sm text-slate-500">Share your room code: {onlineGame.roomId}</span>
-        </div>
-      );
-    }
-
     if (gameMode === 'online' && onlineGame.opponentDisconnected) {
       return (
         <div className="text-xl text-orange-400 animate-pulse text-center">
-          Opponent disconnected.<br/>
+          ⚠️ Opponent disconnected.<br/>
           <span className="text-sm">Waiting for reconnection...</span>
         </div>
       );

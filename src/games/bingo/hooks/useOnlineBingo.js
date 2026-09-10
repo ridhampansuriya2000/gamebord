@@ -1,30 +1,56 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import io from 'socket.io-client';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
 
-export const useOnlineBingo = (user) => {
+const getPlayerId = () => {
+  if (typeof window !== 'undefined') {
+    let pid = localStorage.getItem('gamebord_player_id');
+    if (!pid) {
+      pid = 'player_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('gamebord_player_id', pid);
+    }
+    return pid;
+  }
+  return 'default_id';
+};
+
+export const useOnlineBingo = () => {
   const [socket, setSocket] = useState(null);
   const [roomId, setRoomId] = useState('');
+  const roomIdRef = useRef('');
+  const playerSymbolRef = useRef(null);
   const [playerSymbol, setPlayerSymbol] = useState(null); // 'X' or 'O'
-  
+
   const [humanBoard, setHumanBoard] = useState(null);
   const [opponentBoard, setOpponentBoard] = useState(null);
   const [calledNumbers, setCalledNumbers] = useState([]);
   const [currentTurn, setCurrentTurn] = useState('X');
+  const [opponentJoined, setOpponentJoined] = useState(false); // opponent in room but board not ready
   
   const [winner, setWinner] = useState(null);
-  const [status, setStatus] = useState('idle'); // 'idle', 'connecting', 'connected', 'disconnected', 'waiting', 'setup', 'playing', 'finished'
+  // statuses: 'idle' | 'connecting' | 'connected' | 'disconnected' | 'waiting' | 'setup' | 'playing' | 'finished'
+  const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [opponentReady, setOpponentReady] = useState(false);
+  const [opponentLeft, setOpponentLeft] = useState(false);
+
+  const setRoom = (id) => {
+    roomIdRef.current = id;
+    setRoomId(id);
+  };
+
+  const setSymbol = (sym) => {
+    playerSymbolRef.current = sym;
+    setPlayerSymbol(sym);
+  };
 
   const connect = useCallback(() => {
     if (socket) return;
-    
+
     setStatus('connecting');
 
-    // Use user.id if logged in, else generate a random ID
-    const playerId = user?.id || `guest_${Math.random().toString(36).substring(2, 9)}`;
+    const playerId = getPlayerId();
     const newSocket = io(SOCKET_URL, {
       query: { playerId },
       reconnection: true,
@@ -40,31 +66,45 @@ export const useOnlineBingo = (user) => {
     });
 
     newSocket.on('connect_error', () => {
-      setError(`Could not connect to ${SOCKET_URL}. Check if the backend is running!`);
+      setError(`Could not connect to server. Check your connection!`);
       setStatus('disconnected');
     });
 
     newSocket.on('error', ({ message }) => {
       setError(message);
+      setTimeout(() => setError(''), 3000);
     });
 
-    newSocket.on('room-created', ({ roomId, player, status }) => {
-      setRoomId(roomId);
-      setPlayerSymbol(player);
-      setStatus(status); // 'waiting'
+    // Room creator: their room was made
+    newSocket.on('room-created', ({ roomId, player }) => {
+      setRoom(roomId);
+      setSymbol(player);
+      setStatus('waiting'); // waiting for opponent
+      setOpponentJoined(false);
+      setOpponentLeft(false);
     });
 
-    newSocket.on('player-joined', ({ roomId, player, status }) => {
-      setRoomId(roomId);
-      setPlayerSymbol(player);
-      setStatus(status); // 'playing' for tic-tac-toe, but 'setup' for bingo
-      if (status === 'playing') setStatus('setup'); // Bingo specific
+    // Joiner: they successfully joined
+    newSocket.on('player-joined', ({ roomId, player }) => {
+      setRoom(roomId);
+      setSymbol(player);
+      setStatus('setup'); // immediately go to board setup
+      setOpponentJoined(true); // creator is already here
+      setOpponentLeft(false);
     });
 
+    // Creator: opponent just joined — go to setup
+    newSocket.on('opponent-joined', () => {
+      setStatus('setup');
+      setOpponentJoined(true);
+    });
+
+    // Opponent finished setting up their board
     newSocket.on('bingo-opponent-ready', () => {
       setOpponentReady(true);
     });
 
+    // Both boards ready — game starts
     newSocket.on('bingo-game-start', ({ currentTurn }) => {
       setCurrentTurn(currentTurn);
       setStatus('playing');
@@ -74,12 +114,13 @@ export const useOnlineBingo = (user) => {
       setCalledNumbers(calledNumbers);
       setCurrentTurn(currentTurn);
       setWinner(winner);
-      setStatus(status);
+      if (status) setStatus(status);
     });
 
     newSocket.on('bingo-game-over', ({ boardX, boardO, winner }) => {
-      // Reveal opponent's board
-      if (playerSymbol === 'X') setOpponentBoard(boardO);
+      // Reveal opponent's board at game end
+      const sym = playerSymbolRef.current;
+      if (sym === 'X') setOpponentBoard(boardO);
       else setOpponentBoard(boardX);
       setWinner(winner);
       setStatus('finished');
@@ -92,17 +133,35 @@ export const useOnlineBingo = (user) => {
       setCurrentTurn('X');
       setWinner(null);
       setOpponentReady(false);
+      setOpponentLeft(false);
       setStatus('setup');
     });
 
+    // Opponent reconnected after a disconnect
+    newSocket.on('player-reconnected', () => {
+      setOpponentLeft(false);
+      setError('');
+    });
+
+    // Opponent left or lost connection
     newSocket.on('player-disconnected', () => {
-      setError('Opponent disconnected.');
+      setOpponentLeft(true);
+      setOpponentJoined(false);
+      setError('Opponent left the room.');
+    });
+
+    // Room was closed (e.g. timeout after disconnect)
+    newSocket.on('room-closed', () => {
+      setError('Room closed. Opponent did not reconnect.');
+      setStatus('connected');
+      setRoom('');
+      setSymbol(null);
     });
 
     return () => {
       newSocket.disconnect();
     };
-  }, [socket, user?.id, playerSymbol]);
+  }, [socket]);
 
   useEffect(() => {
     connect();
@@ -120,25 +179,25 @@ export const useOnlineBingo = (user) => {
 
   const submitBoard = (board) => {
     setHumanBoard(board);
-    socket.emit('bingo-board-ready', { roomId, board });
+    socket.emit('bingo-board-ready', { roomId: roomIdRef.current, board });
   };
 
   const callNumber = (number) => {
-    if (!socket || status !== 'playing' || currentTurn !== playerSymbol) return;
-    socket.emit('bingo-call-number', { roomId, number });
+    if (!socket || status !== 'playing' || currentTurn !== playerSymbolRef.current) return;
+    socket.emit('bingo-call-number', { roomId: roomIdRef.current, number });
   };
 
   const requestRestart = () => {
     if (!socket) return;
-    socket.emit('bingo-accept-restart', { roomId });
+    socket.emit('bingo-accept-restart', { roomId: roomIdRef.current });
   };
 
   const leaveRoom = () => {
     if (socket) {
       socket.emit('leave-room');
     }
-    setRoomId('');
-    setPlayerSymbol(null);
+    setRoom('');
+    setSymbol(null);
     setHumanBoard(null);
     setOpponentBoard(null);
     setCalledNumbers([]);
@@ -146,6 +205,8 @@ export const useOnlineBingo = (user) => {
     setWinner(null);
     setStatus('connected');
     setOpponentReady(false);
+    setOpponentJoined(false);
+    setOpponentLeft(false);
     setError('');
   };
 
@@ -160,6 +221,8 @@ export const useOnlineBingo = (user) => {
     status,
     error,
     opponentReady,
+    opponentJoined,
+    opponentLeft,
     socket, // Expose for WebRTC
     connect,
     createRoom,
