@@ -85,10 +85,11 @@ export default function Home() {
           <div className="w-full p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-center animate-in shake flex flex-col gap-2">
             <span className="font-bold">Connection Failed</span>
             <span className="text-sm">{onlineGame.error}</span>
-            <span className="text-xs mt-2 text-red-300">Did you add NEXT_PUBLIC_SOCKET_URL in your hosting platform (Vercel)?</span>
-            <button onClick={onlineGame.connect} className="mt-2 px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-md text-sm transition-all">
-              Retry Connection
-            </button>
+            {onlineGame.error.includes('Could not connect to') && (
+              <button onClick={onlineGame.connect} className="mt-2 px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-md text-sm transition-all">
+                Retry Connection
+              </button>
+            )}
           </div>
         )}
 
@@ -150,9 +151,9 @@ export default function Home() {
           {onlineGame.status === 'playing' || onlineGame.status === 'finished' ? (
              <div className="flex items-center gap-2">
                {rtc.opponentVoiceActive && (
-                 <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-md animate-pulse border border-green-500/30 flex items-center gap-1 mr-2">
-                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
-                   Opponent in Voice
+                 <span className="bg-green-500/20 text-green-300 px-2 py-1.5 rounded-md animate-pulse border border-green-500/30 flex items-center gap-1.5 mr-2" title="Opponent has voice chat enabled">
+                   <span className="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
+                   <span className="text-sm">🎧</span>
                  </span>
                )}
                {rtc.voiceError && <span className="text-xs text-red-400 mr-2">{rtc.voiceError}</span>}
@@ -382,6 +383,16 @@ export default function Home() {
 
         {(gameMode === 'local' || (gameMode === 'online' && onlineGame.roomId)) && (
           <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500">
+            {/* Top Back/Leave Button */}
+            <div className="w-full flex justify-start mb-4">
+              <button
+                onClick={handleLeaveOrBack}
+                className="group flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-md text-slate-300 hover:text-white text-sm font-semibold rounded-lg border border-white/10 transition-all duration-300 hover:scale-105 active:scale-95"
+              >
+                ← {gameMode === 'online' ? 'Leave Room' : 'Back to Menu'}
+              </button>
+            </div>
+
             {renderGameHeader()}
 
             {/* Game Status */}
@@ -402,15 +413,7 @@ export default function Home() {
               />
             </div>
 
-            {/* Controls */}
-            <div className="flex gap-4">
-              <button
-                onClick={handleLeaveOrBack}
-                className="group relative px-6 py-3 bg-black/20 hover:bg-black/40 backdrop-blur-md text-slate-300 hover:text-white font-semibold rounded-xl border border-white/10 transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                {gameMode === 'online' ? 'Leave Room' : 'Back to Menu'}
-              </button>
-            </div>
+            {/* Controls (Moved to top) */}
 
           </div>
         )}
