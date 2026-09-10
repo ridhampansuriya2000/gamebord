@@ -14,12 +14,14 @@ export const useOnlineBingo = (user) => {
   const [currentTurn, setCurrentTurn] = useState('X');
   
   const [winner, setWinner] = useState(null);
-  const [status, setStatus] = useState('disconnected'); // 'disconnected', 'waiting', 'setup', 'playing', 'finished'
+  const [status, setStatus] = useState('idle'); // 'idle', 'connecting', 'connected', 'disconnected', 'waiting', 'setup', 'playing', 'finished'
   const [error, setError] = useState('');
   const [opponentReady, setOpponentReady] = useState(false);
 
   const connect = useCallback(() => {
     if (socket) return;
+    
+    setStatus('connecting');
 
     // Use user.id if logged in, else generate a random ID
     const playerId = user?.id || `guest_${Math.random().toString(36).substring(2, 9)}`;
@@ -33,6 +35,7 @@ export const useOnlineBingo = (user) => {
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
+      setStatus('connected');
       setError('');
     });
 
@@ -141,7 +144,7 @@ export const useOnlineBingo = (user) => {
     setCalledNumbers([]);
     setCurrentTurn('X');
     setWinner(null);
-    setStatus('disconnected');
+    setStatus('connected');
     setOpponentReady(false);
     setError('');
   };

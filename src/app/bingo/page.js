@@ -258,7 +258,7 @@ export default function BingoHome() {
         {/* Dynamic Content */}
         {!gameMode && renderModeSelection()}
         
-        {status === 'lobby' && renderOnlineLobby()}
+        {gameMode === 'online' && ['lobby', 'disconnected', 'connected', 'connecting', 'idle'].includes(status) && renderOnlineLobby()}
 
         {gameMode && status === 'setup' && (
           <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500">
