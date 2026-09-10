@@ -3,14 +3,25 @@ import { checkWinner, isDraw, getBestMove, getWinningLine } from '../models/Game
 
 export const useGame = () => {
   const [board, setBoard] = useState(Array(9).fill(null));
-  const [isHumanTurn, setIsHumanTurn] = useState(true); // Human plays first by default
+  
+  // Who goes first this specific game
+  const [isHumanTurn, setIsHumanTurn] = useState(true); 
+  
+  // Who went first LAST game (so we can toggle)
+  const [humanStartedLast, setHumanStartedLast] = useState(true);
+
   const [winner, setWinner] = useState(null); // 'X' or 'O'
   const [winningLine, setWinningLine] = useState(null);
   const [draw, setDraw] = useState(false);
 
   const resetGame = () => {
     setBoard(Array(9).fill(null));
-    setIsHumanTurn(true);
+    
+    // Toggle who starts
+    const nextGameHumanStarts = !humanStartedLast;
+    setHumanStartedLast(nextGameHumanStarts);
+    setIsHumanTurn(nextGameHumanStarts);
+
     setWinner(null);
     setWinningLine(null);
     setDraw(false);

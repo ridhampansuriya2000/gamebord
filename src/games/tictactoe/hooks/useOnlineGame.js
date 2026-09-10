@@ -62,7 +62,12 @@ export const useOnlineGame = () => {
     });
 
     newSocket.on('connect_error', (err) => {
-      setError(`Connection Error: Could not connect to ${SOCKET_URL}. Check if the backend is running!`);
+      // Differentiate between genuine connect errors and custom errors from backend
+      if (err.message && err.message !== 'xhr poll error') {
+        setError(err.message);
+      } else {
+        setError(`Connection Error: Could not connect to ${SOCKET_URL}. Check if the backend is running!`);
+      }
       setStatus('disconnected');
     });
 
@@ -106,6 +111,12 @@ export const useOnlineGame = () => {
     newSocket.on('game-start', (data) => {
       setBoard(data.board);
       setCurrentTurn(data.currentTurn);
+      
+      // The backend may swap playerX and playerO, so we update our symbol
+      const pid = getPlayerId();
+      if (data.playerX === pid) setPlayerSymbol('X');
+      else if (data.playerO === pid) setPlayerSymbol('O');
+
       setStatus('playing');
       setWinner(null);
       setWinningLine(null);
