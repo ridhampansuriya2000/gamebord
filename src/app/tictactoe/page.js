@@ -8,6 +8,7 @@ import { useWebRTC } from '../../shared/hooks/useWebRTC';
 import Board from '../../games/tictactoe/components/Board';
 import OnlineLobby from '../../shared/components/OnlineLobby';
 import GameHeader from '../../shared/components/GameHeader';
+import ModeSelection from '../../shared/components/ModeSelection';
 
 export default function Home() {
   const [gameMode, setGameMode] = useState(null); // 'local' or 'online'
@@ -47,30 +48,6 @@ export default function Home() {
   }, [activeGame.winner, gameMode, activeGame.playerSymbol]);
 
   // Render Helpers
-  const renderModeSelection = () => (
-    <div className="flex flex-col items-center gap-6 animate-in zoom-in-95 duration-500">
-      <h2 className="text-2xl font-semibold text-slate-200 mb-4">Select Game Mode</h2>
-      <button
-        onClick={() => setGameMode('local')}
-        className="w-64 py-4 px-6 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl border border-white/20 shadow-lg transition-all hover:scale-105 active:scale-95 text-xl font-bold flex items-center justify-center gap-3 group"
-      >
-        <span className="text-cyan-400 group-hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.8)] transition-all">👤</span> 
-        Play vs Bot
-      </button>
-      <button
-        onClick={() => {
-          setGameMode('online');
-          onlineGame.connect();
-        }}
-        className="w-64 py-4 px-6 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl border border-white/20 shadow-lg transition-all hover:scale-105 active:scale-95 text-xl font-bold flex items-center justify-center gap-3 group"
-      >
-        <span className="text-rose-400 group-hover:drop-shadow-[0_0_10px_rgba(251,113,133,0.8)] transition-all">🌐</span>
-        Play Online
-      </button>
-    </div>
-  );
-
-
   const getStatusDisplay = () => {
     if (gameMode === 'online' && onlineGame.opponentDisconnected) {
       return (
@@ -241,7 +218,15 @@ export default function Home() {
         </div>
 
         {/* View Routing */}
-        {!gameMode && renderModeSelection()}
+        {!gameMode && (
+          <div className="mt-8 flex justify-center w-full">
+            <ModeSelection 
+              gameName="Suni Chokdi"
+              onLocal={() => setGameMode('local')}
+              onOnline={() => { setGameMode('online'); onlineGame.connect(); }}
+            />
+          </div>
+        )}
         
         {gameMode === 'online' && !onlineGame.roomId && (
           <OnlineLobby
@@ -258,23 +243,24 @@ export default function Home() {
 
         {(gameMode === 'local' || (gameMode === 'online' && onlineGame.roomId)) && (
           <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500">
-            {/* Top Back/Leave Button */}
-            <div className="w-full flex justify-start mb-4">
+            {/* Top Bar (Leave + GameHeader) */}
+            <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
               <button
                 onClick={handleLeaveOrBack}
-                className="group flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 backdrop-blur-md text-slate-300 hover:text-white text-sm font-semibold rounded-lg border border-white/10 transition-all duration-300 hover:scale-105 active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-sm font-semibold rounded-lg border border-white/10 transition-all flex-shrink-0"
               >
-                ← {gameMode === 'online' ? 'Leave Room' : 'Back to Menu'}
+                ← {gameMode === 'online' ? 'Leave' : 'Back'}
               </button>
+              <div className="w-full sm:w-auto flex justify-end">
+                <GameHeader
+                  gameMode={gameMode}
+                  roomId={onlineGame.roomId}
+                  playerSymbol={onlineGame.playerSymbol}
+                  status={onlineGame.status}
+                  rtc={rtc}
+                />
+              </div>
             </div>
-
-            <GameHeader
-              gameMode={gameMode}
-              roomId={onlineGame.roomId}
-              playerSymbol={onlineGame.playerSymbol}
-              status={onlineGame.status}
-              rtc={rtc}
-            />
 
             {/* Game Status */}
             <div className="min-h-[4rem] flex flex-col items-center justify-center gap-4 mb-4 w-full">
