@@ -7,6 +7,7 @@ import { useOnlineBingo } from '../../games/bingo/hooks/useOnlineBingo';
 import { useWebRTC } from '../../shared/hooks/useWebRTC';
 import BingoBoard from '../../games/bingo/components/BingoBoard';
 import BingoSetup from '../../games/bingo/components/BingoSetup';
+import { getCompletedLines } from '../../games/bingo/models/BingoLogic';
 import Link from 'next/link';
 
 export default function BingoHome() {
@@ -338,6 +339,27 @@ export default function BingoHome() {
             <div className="flex flex-col md:flex-row gap-8 items-start w-full justify-center">
               <div className="flex flex-col items-center">
                 <span className="text-sm font-semibold text-slate-300 mb-2">Your Board</span>
+                
+                {/* B I N G O Word Indicator */}
+                <div className="flex gap-2 mb-3">
+                  {['B', 'I', 'N', 'G', 'O'].map((letter, index) => {
+                    const myLines = activeGame.humanBoard ? getCompletedLines(activeGame.humanBoard, activeGame.calledNumbers).count : 0;
+                    const isLit = myLines > index;
+                    return (
+                      <div 
+                        key={index} 
+                        className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg font-black text-xl transition-all duration-500 ${
+                          isLit 
+                            ? 'bg-yellow-400 text-slate-900 shadow-[0_0_15px_rgba(250,204,21,0.8)] scale-110' 
+                            : 'bg-white/5 text-slate-500 border border-white/10'
+                        }`}
+                      >
+                        {letter}
+                      </div>
+                    );
+                  })}
+                </div>
+
                 <BingoBoard 
                   board={activeGame.humanBoard} 
                   calledNumbers={activeGame.calledNumbers}
@@ -347,11 +369,34 @@ export default function BingoHome() {
                 />
               </div>
 
-              {(gameMode === 'local' || status === 'finished') && (
+              {/* Only show opponent/bot board when game is finished */}
+              {status === 'finished' && (
                 <div className="flex flex-col items-center animate-in fade-in duration-700">
                   <span className="text-sm font-semibold text-slate-300 mb-2">
                     {gameMode === 'local' ? "Bot's Board" : "Opponent's Board"}
                   </span>
+
+                  <div className="flex gap-2 mb-3">
+                    {['B', 'I', 'N', 'G', 'O'].map((letter, index) => {
+                      const oppLines = (gameMode === 'local' ? activeGame.botBoard : activeGame.opponentBoard) 
+                        ? getCompletedLines(gameMode === 'local' ? activeGame.botBoard : activeGame.opponentBoard, activeGame.calledNumbers).count 
+                        : 0;
+                      const isLit = oppLines > index;
+                      return (
+                        <div 
+                          key={index} 
+                          className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg font-black text-xl transition-all duration-500 ${
+                            isLit 
+                              ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.8)] scale-110' 
+                              : 'bg-black/20 text-slate-600 border border-white/5'
+                          }`}
+                        >
+                          {letter}
+                        </div>
+                      );
+                    })}
+                  </div>
+
                   <BingoBoard 
                     board={gameMode === 'local' ? activeGame.botBoard : activeGame.opponentBoard} 
                     calledNumbers={activeGame.calledNumbers}
