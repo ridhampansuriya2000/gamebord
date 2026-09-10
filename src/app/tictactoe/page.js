@@ -6,6 +6,8 @@ import { useGame } from '../../games/tictactoe/hooks/useGame';
 import { useOnlineGame } from '../../games/tictactoe/hooks/useOnlineGame';
 import { useWebRTC } from '../../shared/hooks/useWebRTC';
 import Board from '../../games/tictactoe/components/Board';
+import OnlineLobby from '../../shared/components/OnlineLobby';
+import GameHeader from '../../shared/components/GameHeader';
 
 export default function Home() {
   const [gameMode, setGameMode] = useState(null); // 'local' or 'online'
@@ -68,135 +70,6 @@ export default function Home() {
     </div>
   );
 
-  const renderOnlineLobby = () => {
-    const isConnecting = onlineGame.status === 'idle' || onlineGame.status === 'connecting';
-    const isDisconnected = onlineGame.status === 'disconnected';
-
-    return (
-      <div className="flex flex-col items-center gap-6 animate-in slide-in-from-bottom-4 duration-500 w-full max-w-sm">
-        <div className="flex w-full justify-between items-center mb-2">
-          <h2 className="text-2xl font-semibold text-slate-200">Online Lobby</h2>
-          <button onClick={() => setGameMode(null)} className="text-slate-400 hover:text-white transition-colors">
-            ← Back
-          </button>
-        </div>
-
-        {onlineGame.error && (
-          <div className="w-full p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-center animate-in shake flex flex-col gap-2">
-            <span className="font-bold">Connection Failed</span>
-            <span className="text-sm">{onlineGame.error}</span>
-            {onlineGame.error.includes('Could not connect to') && (
-              <button onClick={onlineGame.connect} className="mt-2 px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-md text-sm transition-all">
-                Retry Connection
-              </button>
-            )}
-          </div>
-        )}
-
-        {isConnecting && !onlineGame.error ? (
-          <div className="text-slate-400 animate-pulse my-8 flex flex-col items-center gap-3">
-            <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-            Connecting to Multiplayer Server...
-          </div>
-        ) : isDisconnected && !onlineGame.error ? (
-          <div className="text-orange-400 animate-pulse my-8">Disconnected from server.</div>
-        ) : !onlineGame.error && (
-          <>
-            <button
-              onClick={onlineGame.createRoom}
-              className="w-full py-4 px-6 bg-gradient-to-r from-rose-500/20 to-orange-500/20 hover:from-rose-500/30 hover:to-orange-500/30 backdrop-blur-md rounded-xl border border-rose-500/30 shadow-lg transition-all hover:scale-[1.02] active:scale-95 text-lg font-bold"
-            >
-              Create New Room
-            </button>
-
-            <div className="flex items-center w-full gap-4 my-2">
-              <div className="h-px bg-white/10 flex-1"></div>
-              <span className="text-slate-400 text-sm">OR</span>
-              <div className="h-px bg-white/10 flex-1"></div>
-            </div>
-
-            <div className="w-full flex flex-col gap-3">
-              <input
-                type="text"
-                placeholder="Enter Room Code"
-                value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                maxLength={6}
-                className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-center text-xl tracking-[0.25em] font-mono text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors uppercase"
-              />
-              <button
-                onClick={() => onlineGame.joinRoom(joinCode)}
-                disabled={joinCode.length < 3}
-                className="w-full py-3 px-6 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg transition-all active:scale-95 text-lg font-bold"
-              >
-                Join Room
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    );
-  };
-
-  const renderGameHeader = () => {
-    if (gameMode === 'online') {
-      return (
-        <div className="flex items-center justify-between w-full mb-6 px-2">
-          <div className="flex flex-col">
-            <span className="text-xs text-slate-400 uppercase tracking-wider">Room Code</span>
-            <span className="font-mono text-xl text-cyan-400 font-bold tracking-widest">{onlineGame.roomId}</span>
-          </div>
-
-          {/* Voice Chat Controls */}
-          {onlineGame.status === 'playing' || onlineGame.status === 'finished' ? (
-             <div className="flex items-center gap-2">
-               {rtc.opponentVoiceActive && (
-                 <span className="bg-green-500/20 text-green-300 px-2 py-1.5 rounded-md animate-pulse border border-green-500/30 flex items-center gap-1.5 mr-2" title="Opponent has voice chat enabled">
-                   <span className="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
-                   <span className="text-sm">🎧</span>
-                 </span>
-               )}
-               {rtc.voiceError && <span className="text-xs text-red-400 mr-2">{rtc.voiceError}</span>}
-               
-               {!rtc.isVoiceActive ? (
-                 <button 
-                   onClick={rtc.startVoiceChat}
-                   className="px-3 py-1.5 bg-green-500/20 border border-green-500/50 rounded-lg text-sm font-medium hover:bg-green-500/30 transition-colors flex items-center gap-2"
-                 >
-                   <span>🎤</span> Join Voice
-                 </button>
-               ) : (
-                 <div className="flex items-center gap-2 bg-black/20 rounded-lg p-1 border border-white/10">
-                   <button 
-                     onClick={rtc.toggleMute}
-                     className={`p-2 rounded-md transition-colors ${rtc.isMuted ? 'bg-red-500/50 hover:bg-red-500/70' : 'bg-white/10 hover:bg-white/20'}`}
-                   >
-                     {rtc.isMuted ? '🔇' : '🎙️'}
-                   </button>
-                   <button 
-                     onClick={rtc.stopVoiceChat}
-                     className="p-2 bg-red-500/20 hover:bg-red-500/40 rounded-md transition-colors text-xs font-bold"
-                   >
-                     Disconnect
-                   </button>
-                 </div>
-               )}
-               {/* Hidden audio element to play remote voice */}
-               <audio ref={rtc.remoteAudioRef} autoPlay />
-             </div>
-          ) : null}
-
-          <div className="flex flex-col items-end">
-            <span className="text-xs text-slate-400 uppercase tracking-wider">You are</span>
-            <span className={`text-xl font-bold ${onlineGame.playerSymbol === 'X' ? 'text-rose-400' : 'text-cyan-400'}`}>
-              Player {onlineGame.playerSymbol}
-            </span>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
 
   const getStatusDisplay = () => {
     if (gameMode === 'online' && onlineGame.status === 'waiting') {
@@ -379,7 +252,18 @@ export default function Home() {
         {/* View Routing */}
         {!gameMode && renderModeSelection()}
         
-        {gameMode === 'online' && !onlineGame.roomId && renderOnlineLobby()}
+        {gameMode === 'online' && !onlineGame.roomId && (
+          <OnlineLobby
+            status={onlineGame.status}
+            error={onlineGame.error}
+            joinCode={joinCode}
+            setJoinCode={setJoinCode}
+            onCreateRoom={onlineGame.createRoom}
+            onJoinRoom={onlineGame.joinRoom}
+            onConnectRetry={onlineGame.connect}
+            onBack={() => setGameMode(null)}
+          />
+        )}
 
         {(gameMode === 'local' || (gameMode === 'online' && onlineGame.roomId)) && (
           <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500">
@@ -393,7 +277,13 @@ export default function Home() {
               </button>
             </div>
 
-            {renderGameHeader()}
+            <GameHeader
+              gameMode={gameMode}
+              roomId={onlineGame.roomId}
+              playerSymbol={onlineGame.playerSymbol}
+              status={onlineGame.status}
+              rtc={rtc}
+            />
 
             {/* Game Status */}
             <div className="min-h-[4rem] flex flex-col items-center justify-center gap-4 mb-4 w-full">

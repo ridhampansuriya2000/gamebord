@@ -8,6 +8,8 @@ import { useWebRTC } from '../../shared/hooks/useWebRTC';
 import BingoBoard from '../../games/bingo/components/BingoBoard';
 import BingoSetup from '../../games/bingo/components/BingoSetup';
 import { getCompletedLines } from '../../games/bingo/models/BingoLogic';
+import OnlineLobby from '../../shared/components/OnlineLobby';
+import GameHeader from '../../shared/components/GameHeader';
 import Link from 'next/link';
 
 export default function BingoHome() {
@@ -74,135 +76,6 @@ export default function BingoHome() {
     </div>
   );
 
-  const renderOnlineLobby = () => {
-    const isConnecting = onlineGame.status === 'idle' || onlineGame.status === 'connecting';
-    const isDisconnected = onlineGame.status === 'disconnected';
-
-    return (
-      <div className="flex flex-col items-center gap-6 animate-in slide-in-from-bottom-4 duration-500 w-full max-w-sm">
-        <div className="flex w-full justify-between items-center mb-2">
-          <h2 className="text-2xl font-semibold text-slate-200">Online Lobby</h2>
-          <button onClick={() => setGameMode(null)} className="text-slate-400 hover:text-white transition-colors">
-            ← Back
-          </button>
-        </div>
-
-        {onlineGame.error && (
-          <div className="w-full p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-center animate-in shake flex flex-col gap-2">
-            <span className="font-bold">Connection Failed</span>
-            <span className="text-sm">{onlineGame.error}</span>
-            {onlineGame.error.includes('Could not connect to') && (
-              <button onClick={onlineGame.connect} className="mt-2 px-4 py-2 bg-red-500/30 hover:bg-red-500/50 rounded-md text-sm transition-all">
-                Retry Connection
-              </button>
-            )}
-          </div>
-        )}
-
-        {isConnecting && !onlineGame.error ? (
-          <div className="text-slate-400 animate-pulse my-8 flex flex-col items-center gap-3">
-            <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-            Connecting to Multiplayer Server...
-          </div>
-        ) : !isDisconnected ? (
-          <div className="flex flex-col w-full gap-4">
-            <button
-              onClick={onlineGame.createRoom}
-              className="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 rounded-xl transition-all font-bold shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)]"
-            >
-              Create New Room
-            </button>
-            
-            <div className="flex items-center gap-3 my-2 opacity-50">
-              <div className="flex-1 h-px bg-white"></div>
-              <span className="text-sm uppercase tracking-widest">or</span>
-              <div className="flex-1 h-px bg-white"></div>
-            </div>
-
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Enter Room Code"
-                value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                className="flex-1 bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 uppercase tracking-widest"
-                maxLength={6}
-              />
-              <button
-                onClick={() => onlineGame.joinRoom(joinCode)}
-                disabled={!joinCode || joinCode.length < 6}
-                className="py-3 px-6 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-md rounded-xl border border-white/20 transition-all font-semibold"
-              >
-                Join
-              </button>
-            </div>
-          </div>
-        ) : null}
-      </div>
-    );
-  };
-
-  const renderGameHeader = () => {
-    if (gameMode === 'online') {
-      return (
-        <div className="flex items-center justify-between w-full mb-6 px-2">
-          <div className="flex flex-col">
-            <span className="text-xs text-slate-400 uppercase tracking-widest font-semibold mb-1">Room Code</span>
-            <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold font-mono tracking-widest text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
-                {onlineGame.roomId}
-              </span>
-              <button 
-                onClick={() => {
-                  navigator.clipboard.writeText(onlineGame.roomId);
-                  // Optional: add a tiny toast here
-                }}
-                className="p-2 bg-white/5 hover:bg-white/15 rounded-lg border border-white/10 transition-colors"
-                title="Copy Room Code"
-              >
-                📋
-              </button>
-            </div>
-            <span className="text-xs text-slate-400 mt-2">
-              Share this code with your friend to play!
-            </span>
-          </div>
-
-          {/* WebRTC Voice Controls */}
-          {(onlineGame.status === 'playing' || onlineGame.status === 'finished' || onlineGame.status === 'setup') ? (
-             <div className="flex items-center gap-2">
-               {rtc.opponentVoiceActive && (
-                 <span className="bg-green-500/20 text-green-300 px-2 py-1.5 rounded-md animate-pulse border border-green-500/30 flex items-center gap-1.5 mr-2" title="Opponent has voice chat enabled">
-                   <span className="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
-                   <span className="text-sm">🎧</span>
-                 </span>
-               )}
-               {rtc.voiceError && <span className="text-xs text-red-400 mr-2">{rtc.voiceError}</span>}
-               <button
-                 onClick={rtc.isVoiceActive ? rtc.stopVoice : rtc.startVoice}
-                 className={`p-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 border ${
-                   rtc.isVoiceActive 
-                     ? 'bg-red-500/20 text-red-300 border-red-500/50 hover:bg-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.3)]' 
-                     : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10'
-                 }`}
-                 title={rtc.isVoiceActive ? "Mute Microphone" : "Enable Voice Chat"}
-               >
-                 <span>{rtc.isVoiceActive ? '🎙️' : '🎤'}</span>
-                 <span className="hidden sm:inline">{rtc.isVoiceActive ? 'Disable Mic' : 'Enable Voice'}</span>
-               </button>
-             </div>
-          ) : (
-             <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg">
-               <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-               <span className="text-sm text-yellow-200">Waiting for opponent...</span>
-             </div>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
-
   const handleLeaveOrBack = () => {
     if (gameMode === 'online') {
       onlineGame.leaveRoom();
@@ -258,7 +131,18 @@ export default function BingoHome() {
         {/* Dynamic Content */}
         {!gameMode && renderModeSelection()}
         
-        {gameMode === 'online' && ['lobby', 'disconnected', 'connected', 'connecting', 'idle'].includes(status) && renderOnlineLobby()}
+        {gameMode === 'online' && ['lobby', 'disconnected', 'connected', 'connecting', 'idle'].includes(status) && (
+          <OnlineLobby 
+            status={onlineGame.status}
+            error={onlineGame.error}
+            joinCode={joinCode}
+            setJoinCode={setJoinCode}
+            onCreateRoom={onlineGame.createRoom}
+            onJoinRoom={onlineGame.joinRoom}
+            onConnectRetry={onlineGame.connect}
+            onBack={() => setGameMode(null)}
+          />
+        )}
 
         {gameMode && status === 'setup' && (
           <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500">
@@ -271,7 +155,14 @@ export default function BingoHome() {
                 ← {gameMode === 'online' ? 'Leave Room' : 'Back to Menu'}
               </button>
             </div>
-            {renderGameHeader()}
+            
+            <GameHeader 
+              gameMode={gameMode}
+              roomId={onlineGame.roomId}
+              playerSymbol={activeGame.playerSymbol}
+              status={onlineGame.status}
+              rtc={rtc}
+            />
             
             {gameMode === 'online' && onlineGame.humanBoard && !onlineGame.opponentReady && (
               <div className="mb-4 text-yellow-300 animate-pulse">Waiting for opponent to create their board...</div>
@@ -298,7 +189,13 @@ export default function BingoHome() {
               </button>
             </div>
 
-            {renderGameHeader()}
+            <GameHeader 
+              gameMode={gameMode}
+              roomId={onlineGame.roomId}
+              playerSymbol={activeGame.playerSymbol}
+              status={onlineGame.status}
+              rtc={rtc}
+            />
 
             {/* Game Status */}
             <div className="mb-6 h-12 flex items-center justify-center">
