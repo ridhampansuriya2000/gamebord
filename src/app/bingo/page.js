@@ -260,7 +260,7 @@ export default function BingoHome() {
         
         {status === 'lobby' && renderOnlineLobby()}
 
-        {status === 'setup' && (
+        {gameMode && status === 'setup' && (
           <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500">
             {/* Top Back/Leave Button */}
             <div className="w-full flex justify-start mb-4">
