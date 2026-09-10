@@ -21,20 +21,24 @@ export default function GameHeader({ gameMode, roomId, playerSymbol, status, rtc
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-2.5 bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-xl shadow-xl">
+    <div className="fixed top-2 sm:top-4 right-2 sm:right-4 z-[100] flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-xl shadow-xl max-w-[calc(100vw-5rem)] sm:max-w-none">
       
       {/* Left: Room code + player badge */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <button
           onClick={handleCopy}
           className="flex items-center gap-2 group hover:opacity-80 transition-opacity"
           title="Copy Room Code"
         >
-          <span className="font-mono text-base font-bold tracking-widest text-cyan-400">
+          <span className="font-mono text-sm sm:text-base font-bold tracking-widest text-cyan-400">
             {roomId}
           </span>
-          <span className="text-lg">
-            {copied ? '✅' : '📋'}
+          <span className="text-slate-400 group-hover:text-cyan-300 transition-colors">
+            {copied ? (
+              <span className="text-sm">✅</span>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            )}
           </span>
         </button>
 
@@ -76,19 +80,24 @@ export default function GameHeader({ gameMode, roomId, playerSymbol, status, rtc
               <button
                 onClick={rtc.toggleMic ?? rtc.toggleMute}
                 title={rtc.isMicMuted ? 'Unmute Mic' : 'Mute Mic'}
-                className={`w-9 h-9 flex items-center justify-center rounded-lg border transition-all text-lg ${
+                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg border transition-all text-base sm:text-lg ${
                   rtc.isMicMuted
                     ? 'bg-red-500/25 text-red-300 border-red-500/40 hover:bg-red-500/35'
                     : 'bg-white/8 text-slate-200 border-white/15 hover:bg-white/15'
                 }`}
               >
-                {rtc.isMicMuted ? '🔇' : '🎙️'}
+                {rtc.isMicMuted ? (
+                  <div className="relative inline-flex items-center justify-center">
+                    🎙️
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-[3px] bg-red-400 -rotate-45 shadow-sm rounded-full"></div>
+                  </div>
+                ) : '🎙️'}
               </button>
 
               <button
                 onClick={rtc.toggleSpeaker}
                 title={rtc.isSpeakerMuted ? 'Unmute Speaker' : 'Mute Speaker'}
-                className={`w-9 h-9 flex items-center justify-center rounded-lg border transition-all text-lg ${
+                className={`w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg border transition-all text-base sm:text-lg ${
                   rtc.isSpeakerMuted
                     ? 'bg-orange-500/25 text-orange-300 border-orange-500/40 hover:bg-orange-500/35'
                     : 'bg-white/8 text-slate-200 border-white/15 hover:bg-white/15'
@@ -100,7 +109,7 @@ export default function GameHeader({ gameMode, roomId, playerSymbol, status, rtc
               <button
                 onClick={stopVoice}
                 title="Leave Voice"
-                className="w-9 h-9 flex items-center justify-center rounded-lg border bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30 transition-all text-lg"
+                className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg border bg-red-500/20 text-red-300 border-red-500/30 hover:bg-red-500/30 transition-all text-base sm:text-lg"
               >
                 📵
               </button>

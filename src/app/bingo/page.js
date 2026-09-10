@@ -168,7 +168,7 @@ export default function BingoHome() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white flex flex-col items-center p-3 sm:p-6 font-sans overflow-x-hidden relative selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-[#0f172a] text-white flex flex-col items-center justify-center p-4 font-sans overflow-x-hidden relative selection:bg-cyan-500/30">
       
       {/* Background decoration */}
       <div className="fixed inset-0 pointer-events-none">
@@ -196,10 +196,10 @@ export default function BingoHome() {
         </>
       )}
 
-      <div className="relative z-10 w-full max-w-4xl flex flex-col items-center">
+      <main className="relative z-10 w-full max-w-4xl flex flex-col items-center">
         
         {/* Title — ALWAYS VISIBLE as requested */}
-        <div className="mb-6 mt-10 text-center animate-in fade-in slide-in-from-top-8 duration-700">
+        <div className="mb-6 text-center animate-in fade-in slide-in-from-top-8 duration-700">
           <div className="inline-block relative">
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-cyan-300 via-blue-500 to-purple-600 drop-shadow-sm mb-1">
               BINGO
@@ -364,7 +364,7 @@ export default function BingoHome() {
             )}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }
