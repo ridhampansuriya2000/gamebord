@@ -9,6 +9,7 @@ export default function GameHeader({ gameMode, roomId, playerSymbol, status, rtc
   if (gameMode !== 'online') return null;
 
   const [copied, setCopied] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const startVoice = rtc.startVoice ?? rtc.startVoiceChat;
   const stopVoice = rtc.stopVoice ?? rtc.stopVoiceChat;
@@ -21,7 +22,22 @@ export default function GameHeader({ gameMode, roomId, playerSymbol, status, rtc
   };
 
   return (
-    <div className="fixed top-2 sm:top-4 right-2 sm:right-4 z-[100] flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-xl shadow-xl max-w-[calc(100vw-5rem)] sm:max-w-none">
+    <>
+      {/* Mobile Toggle Button */}
+      <button 
+        onClick={() => setMenuOpen(!menuOpen)}
+        className="sm:hidden fixed top-3 right-3 z-[110] p-2 bg-slate-800/90 backdrop-blur-md rounded-lg border border-white/10 shadow-xl text-white"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {menuOpen ? (
+            <><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></>
+          ) : (
+            <><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></>
+          )}
+        </svg>
+      </button>
+
+      <div className={`fixed top-14 sm:top-4 right-3 sm:right-4 z-[100] flex flex-col sm:flex-row items-end sm:items-center justify-end gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 bg-slate-900/95 sm:bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-xl shadow-xl max-w-[calc(100vw-1.5rem)] sm:max-w-none transition-all duration-300 origin-top-right ${menuOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none sm:scale-100 sm:opacity-100 sm:pointer-events-auto'}`}>
       
       {/* Left: Room code + player badge */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -119,6 +135,7 @@ export default function GameHeader({ gameMode, roomId, playerSymbol, status, rtc
           {rtc.remoteAudioRef && <audio ref={rtc.remoteAudioRef} autoPlay />}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

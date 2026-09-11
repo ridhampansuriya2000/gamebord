@@ -144,9 +144,9 @@ export default function BingoHome() {
 
   // Render logic
   const renderBingoWord = (board, isLitFn) => (
-    <div className="flex flex-col items-center gap-2">
-      <span className="text-[11px] font-semibold text-transparent select-none uppercase tracking-widest">BINGO</span>
-      <div className="flex flex-col gap-1.5 sm:gap-2 p-3 sm:p-4 rounded-xl border border-transparent h-full justify-between">
+    <div className="flex flex-col items-center gap-1 sm:gap-2">
+      <span className="hidden sm:block text-[11px] font-semibold text-transparent select-none uppercase tracking-widest">BINGO</span>
+      <div className="flex flex-row sm:flex-col gap-1.5 sm:gap-2 sm:p-3 sm:p-4 sm:rounded-xl sm:border sm:border-transparent sm:h-full sm:justify-between w-full justify-center">
         {['B', 'I', 'N', 'G', 'O'].map((letter, index) => {
           const linesCount = board ? getCompletedLines(board, activeGame.calledNumbers).count : 0;
           const isLit = isLitFn ? isLitFn(linesCount, index) : linesCount > index;
@@ -313,7 +313,10 @@ export default function BingoHome() {
                 <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center justify-center w-full">
                   
                   {/* Your Area (Left side) */}
-                  <div className="flex gap-4 md:gap-6 items-start">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 md:gap-6 items-center sm:items-start">
+                    {/* 3. Your BINGO Word (Top on mobile, Right on Desktop) */}
+                    <div className="sm:hidden">{renderBingoWord(activeGame.humanBoard, null)}</div>
+
                     {/* 4. Your Board */}
                     <div className="flex flex-col items-center gap-2">
                       <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Your Board</span>
@@ -326,14 +329,13 @@ export default function BingoHome() {
                       />
                     </div>
 
-                    {/* 3. Your BINGO Word (Vertical on RIGHT of your board) */}
-                    {renderBingoWord(activeGame.humanBoard, null)}
+                    <div className="hidden sm:block">{renderBingoWord(activeGame.humanBoard, null)}</div>
                   </div>
 
                   {/* Opponent Area (Right side, Finished Only) */}
                   {status === 'finished' && (
-                    <div className="flex gap-4 md:gap-6 items-start">
-                      {/* 2. Bot/Opponent BINGO Word (Vertical on the LEFT of their board) */}
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 md:gap-6 items-center sm:items-start">
+                      {/* 2. Bot/Opponent BINGO Word (Top on mobile, Left on Desktop) */}
                       {renderBingoWord(gameMode === 'local' ? activeGame.botBoard : activeGame.opponentBoard, (lines, idx) => lines > idx)}
 
                       {/* 1. Opponent Board */}

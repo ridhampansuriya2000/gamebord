@@ -9,8 +9,8 @@ export default function BingoBoard({ board, calledNumbers, isInteractive, onNumb
   const winSet = new Set(winningCells);
 
   return (
-    <div className="flex flex-col items-center">
-      <div className={`grid grid-cols-5 gap-1.5 sm:gap-2 p-3 sm:p-4 rounded-xl backdrop-blur-md border shadow-xl ${isOpponentBoard ? 'bg-black/20 border-white/5' : 'bg-white/10 border-white/20'}`}>
+    <div className="flex flex-col items-center flex-shrink-0">
+      <div className={`grid grid-cols-5 gap-1.5 sm:gap-2 p-3 sm:p-4 rounded-xl backdrop-blur-md border shadow-xl flex-shrink-0 min-w-max ${isOpponentBoard ? 'bg-black/20 border-white/5' : 'bg-white/10 border-white/20'}`}>
         {board.map((num, i) => {
           const isCalled = calledSet.has(num);
           const isWinning = winSet.has(i);

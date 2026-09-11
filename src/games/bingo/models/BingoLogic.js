@@ -117,6 +117,7 @@ export const chooseBotNumber = (humanBoard, botBoard, calledNumbers) => {
   const botLines = evaluateLines(botBoard, calledNumbers);
   const humanLines = evaluateLines(humanBoard, calledNumbers);
 
+  const botCompletedCount = botLines.filter(l => l.neededCount === 0).length;
   const humanCompletedCount = humanLines.filter(l => l.neededCount === 0).length;
 
   let bestNumber = available[0];
@@ -127,28 +128,38 @@ export const chooseBotNumber = (humanBoard, botBoard, calledNumbers) => {
 
     // Evaluate impact on Bot's board
     const botImpact = botLines.filter(l => l.missingNumbers.includes(num));
-    for (const line of botImpact) {
-      if (line.neededCount === 1) score += 1000; // This gives the Bot a line!
-      else if (line.neededCount === 2) score += 50; // Progress
-      else if (line.neededCount === 3) score += 10;
-      else score += 1;
-    }
-
+    const linesBotWillGet = botImpact.filter(l => l.neededCount === 1).length;
+    
     // Evaluate impact on Human's board
     const humanImpact = humanLines.filter(l => l.missingNumbers.includes(num));
-    for (const line of humanImpact) {
-      if (line.neededCount === 1) {
-        // If this number gives the human a line, it's very dangerous.
-        // If giving them this line makes them hit 5 lines (win), NEVER pick it.
-        if (humanCompletedCount + 1 >= 5) {
-          score -= 100000; 
-        } else {
-          score -= 500; // Still try to avoid giving them a line if possible
-        }
-      } else if (line.neededCount === 2) {
-        score -= 20; // Try to avoid setting them up
-      } else {
-        score -= 1;
+    const linesHumanWillGet = humanImpact.filter(l => l.neededCount === 1).length;
+
+    // 1. If this number gives the bot a win, take it instantly.
+    if (botCompletedCount + linesBotWillGet >= 5) {
+      return num;
+    }
+
+    // 2. If this number gives the human a win, avoid it at all costs.
+    if (humanCompletedCount + linesHumanWillGet >= 5) {
+      score -= 10000000;
+    } else {
+      // 3. Score calculation
+      
+      // Reward bot progress
+      for (const line of botImpact) {
+        if (line.neededCount === 1) score += 10000; // Gives bot a line
+        else if (line.neededCount === 2) score += 500; // Progress
+        else if (line.neededCount === 3) score += 50;
+        else score += 5;
+      }
+
+      // Heavily penalize helping human
+      // The penalty is intentionally higher than the reward to starve the human of progress.
+      for (const line of humanImpact) {
+        if (line.neededCount === 1) score -= 20000; // NEVER give human a line unless forced
+        else if (line.neededCount === 2) score -= 1000; // Avoid setting up a line
+        else if (line.neededCount === 3) score -= 100;
+        else score -= 10;
       }
     }
 
