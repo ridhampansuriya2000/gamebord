@@ -27,12 +27,12 @@ const games = [
   {
     id: 'sos',
     name: 'SOS',
-    subtitle: 'Classic Paper Game',
+    subtitle: 'Classic Line Game',
     icon: '🆘',
-    description: 'Coming soon — the classic SOS board game with online multiplayer.',
+    description: 'The classic SOS board game. Play offline against our unbeatable bot or online with a friend.',
     color: 'from-orange-500/10 to-amber-500/10',
     accent: 'orange',
-    available: false,
+    available: true,
   },
 ];
 
