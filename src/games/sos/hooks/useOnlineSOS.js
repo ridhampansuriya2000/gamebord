@@ -35,6 +35,10 @@ export const useOnlineSOS = () => {
   };
 
   const setupListeners = (socket) => {
+    socket.on('connect', () => {
+      setStatus('connected');
+    });
+
     socket.on('room-created', ({ roomId }) => {
       setRoomId(roomId);
       setStatus('waiting');

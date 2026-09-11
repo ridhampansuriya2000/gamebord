@@ -34,6 +34,37 @@ export default function SOSPage() {
     }
   }, [gameMode, status, localGame]);
 
+  // Determine whose turn it is textually
+  let turnMessage = '';
+  let isMyTurn = false;
+  if (gameMode === 'local') {
+    isMyTurn = activeGame.isHumanTurn;
+    turnMessage = isMyTurn ? "Your Turn" : "Bot's Turn";
+  } else if (gameMode === 'online') {
+    isMyTurn = activeGame.currentTurn === activeGame.playerSymbol;
+    turnMessage = isMyTurn ? "Your Turn" : "Opponent's Turn";
+  }
+
+  // Keyboard listener
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (status !== 'playing' || !isMyTurn) return;
+      
+      const key = e.key.toLowerCase();
+      if (key === 's') {
+        setCurrentSymbol('S');
+      } else if (key === 'o') {
+        setCurrentSymbol('O');
+      } else if (key === ' ') {
+        e.preventDefault(); // Prevent scrolling
+        setCurrentSymbol(prev => prev === 'S' ? 'O' : 'S');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [status, isMyTurn]);
+
   const handleLeaveOrBack = () => {
     if (gameMode === 'online') {
       onlineGame.leaveRoom();
@@ -49,17 +80,6 @@ export default function SOSPage() {
     activeGame.makeMove(index, currentSymbol);
   };
 
-  // Determine whose turn it is textually
-  let turnMessage = '';
-  let isMyTurn = false;
-  if (gameMode === 'local') {
-    isMyTurn = activeGame.isHumanTurn;
-    turnMessage = isMyTurn ? "Your Turn" : "Bot's Turn";
-  } else if (gameMode === 'online') {
-    isMyTurn = activeGame.currentTurn === activeGame.playerSymbol;
-    turnMessage = isMyTurn ? "Your Turn" : "Opponent's Turn";
-  }
-
   // Handle Play Again logic
   const handlePlayAgain = () => {
     if (gameMode === 'local') {
@@ -72,12 +92,12 @@ export default function SOSPage() {
   const renderSymbolSelector = () => {
     if (status !== 'playing' || !isMyTurn) return null;
     return (
-      <div className="flex flex-col items-center gap-2 mb-4 animate-in fade-in zoom-in duration-300">
-        <span className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Select Symbol</span>
+      <div className="flex items-center gap-3 animate-in fade-in zoom-in duration-300">
+        <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider hidden sm:inline">Symbol:</span>
         <div className="flex bg-slate-800/50 p-1 rounded-xl border border-white/10 shadow-lg">
           <button
             onClick={() => setCurrentSymbol('S')}
-            className={`w-14 h-12 rounded-lg font-black text-xl transition-all ${
+            className={`w-12 h-10 rounded-lg font-black text-xl transition-all ${
               currentSymbol === 'S' 
                 ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.5)]' 
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
@@ -87,7 +107,7 @@ export default function SOSPage() {
           </button>
           <button
             onClick={() => setCurrentSymbol('O')}
-            className={`w-14 h-12 rounded-lg font-black text-xl transition-all ${
+            className={`w-12 h-10 rounded-lg font-black text-xl transition-all ${
               currentSymbol === 'O' 
                 ? 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.5)]' 
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
@@ -184,22 +204,24 @@ export default function SOSPage() {
             {(status === 'playing' || status === 'finished') && (
               <div className="w-full flex flex-col items-center mt-4">
                 
-                {/* Scoreboard */}
-                <div className="flex items-center gap-8 mb-8 bg-slate-800/40 p-4 rounded-2xl border border-white/5 shadow-xl">
-                   <div className="flex flex-col items-center">
-                      <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-1">You</span>
-                      <span className="text-4xl font-black text-white">{gameMode === 'local' ? localGame.scores.human : onlineGame.scores[onlineGame.playerSymbol]}</span>
-                   </div>
-                   <div className="w-px h-12 bg-white/10"></div>
-                   <div className="flex flex-col items-center">
-                      <span className="text-xs font-bold text-rose-400 uppercase tracking-widest mb-1">{gameMode === 'local' ? 'Bot' : 'Opponent'}</span>
-                      <span className="text-4xl font-black text-white">{gameMode === 'local' ? localGame.scores.bot : onlineGame.scores[onlineGame.playerSymbol === 'X' ? 'O' : 'X']}</span>
-                   </div>
-                </div>
+                {/* Compact Top Bar */}
+                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 mb-6 w-full justify-center">
+                  
+                  {/* Scoreboard */}
+                  <div className="flex items-center gap-6 bg-slate-800/40 px-4 py-2 rounded-xl border border-white/5 shadow-xl">
+                     <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-0.5">You</span>
+                        <span className="text-2xl font-black text-white">{gameMode === 'local' ? localGame.scores.human : onlineGame.scores[onlineGame.playerSymbol]}</span>
+                     </div>
+                     <div className="w-px h-8 bg-white/10"></div>
+                     <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-0.5">{gameMode === 'local' ? 'Bot' : 'Opponent'}</span>
+                        <span className="text-2xl font-black text-white">{gameMode === 'local' ? localGame.scores.bot : onlineGame.scores[onlineGame.playerSymbol === 'X' ? 'O' : 'X']}</span>
+                     </div>
+                  </div>
 
-                {/* Status Banner */}
-                <div className="flex justify-center mb-6">
-                  <div className={`px-6 py-2.5 rounded-full text-base font-bold border transition-all duration-300 inline-block ${
+                  {/* Status Banner */}
+                  <div className={`px-5 py-2 rounded-full text-sm font-bold border transition-all duration-300 inline-block ${
                     status === 'playing'
                       ? (isMyTurn
                           ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-[0_0_12px_rgba(34,211,238,0.3)] animate-pulse'
@@ -207,7 +229,7 @@ export default function SOSPage() {
                       : 'bg-transparent border-transparent'
                   }`}>
                     {status === 'playing' ? turnMessage : (
-                      <span className={`text-xl font-black ${
+                      <span className={`text-lg font-black ${
                         activeGame.winner === (gameMode === 'local' ? 'human' : activeGame.playerSymbol)
                           ? 'text-green-400 drop-shadow-[0_0_12px_rgba(74,222,128,0.8)]'
                           : activeGame.winner === 'Draw'
@@ -222,12 +244,13 @@ export default function SOSPage() {
                       </span>
                     )}
                   </div>
+
+                  {/* Symbol Selector */}
+                  {renderSymbolSelector()}
                 </div>
 
                 {/* Main Game Area */}
                 <div className="flex flex-col items-center justify-center w-full">
-                  
-                  {renderSymbolSelector()}
 
                   <div className="flex flex-col items-center gap-2">
                     <SOSBoard 
