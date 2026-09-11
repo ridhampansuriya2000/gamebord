@@ -105,6 +105,51 @@ const evaluateLines = (board, calledNumbers) => {
   return lines;
 };
 
+// Combinatorics helper
+const getCombinations = (arr, k) => {
+  const result = [];
+  const combine = (start, path) => {
+    if (path.length === k) {
+      result.push(path);
+      return;
+    }
+    for (let i = start; i < arr.length; i++) {
+      combine(i + 1, [...path, arr[i]]);
+    }
+  };
+  combine(0, []);
+  return result;
+};
+
+// Calculate the absolute minimum numbers needed to reach 5 lines
+const getDistanceToWin = (lines) => {
+  const completeLinesCount = lines.filter(l => l.neededCount === 0).length;
+  const neededToWin = Math.max(0, 5 - completeLinesCount);
+
+  if (neededToWin === 0) return 0;
+  
+  const incompleteLines = lines.filter(l => l.neededCount > 0);
+  if (incompleteLines.length < neededToWin) return Infinity; // Should not happen on a 5x5
+
+  const combos = getCombinations(incompleteLines, neededToWin);
+  
+  let minCost = Infinity;
+
+  for (const combo of combos) {
+    const missingSet = new Set();
+    for (const line of combo) {
+      for (const num of line.missingNumbers) {
+        missingSet.add(num);
+      }
+    }
+    if (missingSet.size < minCost) {
+      minCost = missingSet.size;
+    }
+  }
+
+  return minCost;
+};
+
 // Choose the best number for the Bot to call
 export const chooseBotNumber = (humanBoard, botBoard, calledNumbers) => {
   const allNumbers = getValidNumbers();
@@ -113,57 +158,70 @@ export const chooseBotNumber = (humanBoard, botBoard, calledNumbers) => {
 
   if (available.length === 0) return null;
 
-  // Evaluate current state
-  const botLines = evaluateLines(botBoard, calledNumbers);
-  const humanLines = evaluateLines(humanBoard, calledNumbers);
-
-  const botCompletedCount = botLines.filter(l => l.neededCount === 0).length;
-  const humanCompletedCount = humanLines.filter(l => l.neededCount === 0).length;
+  // Evaluate current state distance
+  const currentBotLines = evaluateLines(botBoard, calledNumbers);
+  const currentHumanLines = evaluateLines(humanBoard, calledNumbers);
+  
+  const currentBotDistance = getDistanceToWin(currentBotLines);
+  const currentHumanDistance = getDistanceToWin(currentHumanLines);
 
   let bestNumber = available[0];
   let bestScore = -Infinity;
 
   for (const num of available) {
+    const newCalled = [...calledNumbers, num];
+    
+    const newBotLines = evaluateLines(botBoard, newCalled);
+    const newHumanLines = evaluateLines(humanBoard, newCalled);
+    
+    const newBotDistance = getDistanceToWin(newBotLines);
+    const newHumanDistance = getDistanceToWin(newHumanLines);
+
     let score = 0;
 
-    // Evaluate impact on Bot's board
-    const botImpact = botLines.filter(l => l.missingNumbers.includes(num));
-    const linesBotWillGet = botImpact.filter(l => l.neededCount === 1).length;
-    
-    // Evaluate impact on Human's board
-    const humanImpact = humanLines.filter(l => l.missingNumbers.includes(num));
-    const linesHumanWillGet = humanImpact.filter(l => l.neededCount === 1).length;
-
     // 1. If this number gives the bot a win, take it instantly.
-    if (botCompletedCount + linesBotWillGet >= 5) {
+    if (newBotDistance === 0) {
       return num;
     }
 
     // 2. If this number gives the human a win, avoid it at all costs.
-    if (humanCompletedCount + linesHumanWillGet >= 5) {
+    if (newHumanDistance === 0) {
       score -= 10000000;
     } else {
-      // 3. Score calculation
+      // 3. Mathematical distance scoring
+      // We want to MINIMIZE bot distance, and MAXIMIZE human distance.
+      // Progressing the bot's distance is slightly more valuable than blocking human.
       
-      // Reward bot progress
-      for (const line of botImpact) {
-        if (line.neededCount === 1) score += 10000; // Gives bot a line
-        else if (line.neededCount === 2) score += 500; // Progress
-        else if (line.neededCount === 3) score += 50;
-        else score += 5;
+      const botProgress = currentBotDistance - newBotDistance; // positive if we got closer
+      const humanProgress = currentHumanDistance - newHumanDistance; // positive if they got closer
+      
+      score += botProgress * 1000;
+      score -= humanProgress * 800;
+      
+      // Secondary heuristic: if distance didn't change, we still want to progress lines
+      // that are already close to completion to create intersections.
+      if (botProgress === 0) {
+        const botImpact = newBotLines.filter(l => l.missingNumbers.includes(num)); // wait, the missing numbers won't include it anymore
+        const currentBotImpact = currentBotLines.filter(l => l.missingNumbers.includes(num));
+        for (const line of currentBotImpact) {
+          if (line.neededCount === 2) score += 50;
+          else if (line.neededCount === 3) score += 10;
+          else score += 1;
+        }
       }
-
-      // Heavily penalize helping human
-      // The penalty is intentionally higher than the reward to starve the human of progress.
-      for (const line of humanImpact) {
-        if (line.neededCount === 1) score -= 20000; // NEVER give human a line unless forced
-        else if (line.neededCount === 2) score -= 1000; // Avoid setting up a line
-        else if (line.neededCount === 3) score -= 100;
-        else score -= 10;
+      
+      // Secondary heuristic: heavily avoid lines the human is close to completing
+      if (humanProgress === 0) {
+        const currentHumanImpact = currentHumanLines.filter(l => l.missingNumbers.includes(num));
+        for (const line of currentHumanImpact) {
+          if (line.neededCount === 1) score -= 500; // Almost a line!
+          else if (line.neededCount === 2) score -= 50;
+          else score -= 1;
+        }
       }
     }
 
-    // Add a tiny random factor to make it less predictable when scores are identical
+    // Tie-breaker: random noise
     score += Math.random();
 
     if (score > bestScore) {
