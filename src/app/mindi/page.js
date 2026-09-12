@@ -46,8 +46,10 @@ export default function MindiPage() {
     }
   };
 
+  const isPlaying = activeGame.gameState && (status === 'selecting_trump' || status === 'playing' || status === 'trick_complete' || status === 'finished');
+
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center p-4 font-sans overflow-x-hidden relative selection:bg-amber-500/30">
+    <div className={`min-h-screen bg-slate-900 text-white flex flex-col items-center p-4 font-sans overflow-x-hidden relative selection:bg-amber-500/30 ${isPlaying ? 'max-sm:portrait:fixed max-sm:portrait:inset-0 max-sm:portrait:w-[100dvh] max-sm:portrait:h-[100dvw] max-sm:portrait:rotate-90 max-sm:portrait:origin-top-left max-sm:portrait:translate-x-[100dvw] max-sm:portrait:z-[9999]' : ''}`}>
       
       {/* Background decoration */}
       <div className="fixed inset-0 pointer-events-none">
