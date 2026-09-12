@@ -70,7 +70,7 @@ export default function PlayingCard({ card, onClick, selectable, selected, hidde
       disabled={disabled || !selectable}
       className={`relative w-12 h-16 sm:w-20 sm:h-32 bg-white rounded-xl border shadow-lg flex flex-col justify-between p-1 sm:p-2 transition-all duration-200 
         ${selectable ? 'hover:-translate-y-2 cursor-pointer shadow-cyan-500/20 hover:shadow-cyan-500/40' : 'cursor-default'} 
-        ${selected ? '-translate-y-4 shadow-cyan-500/50 ring-2 ring-cyan-400' : ''} 
+        ${selected ? '-translate-y-4 shadow-cyan-500/50 ring-2 ring-cyan-400 max-sm:scale-125 max-sm:z-50' : ''} 
         ${disabled ? 'opacity-50 grayscale cursor-not-allowed' : ''}
       `}
     >
@@ -96,7 +96,7 @@ export default function PlayingCard({ card, onClick, selectable, selected, hidde
       )}
       
       {/* Bottom Right */}
-      <div className={`flex flex-col items-center leading-none rotate-180 ${colorClass}`}>
+      <div className={`hidden sm:flex flex-col items-center leading-none rotate-180 ${colorClass}`}>
         <span className="text-sm sm:text-lg font-black">{card.rank}</span>
         <span className="text-sm sm:text-xl">{suitSymbols[card.suit]}</span>
       </div>

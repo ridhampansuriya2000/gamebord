@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PlayingCard from './PlayingCard';
 import { getValidCards } from '../engine/trumpRules';
 
 export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, onRevealTrump }) {
+  const [selectedCard, setSelectedCard] = useState(null);
+
   if (!gameState) return null;
 
   const { status, currentTurn, currentTrick, trumpRevealed, trumpSuit, hands, playedCards, tricksWon, capturedMindis, winner } = gameState;
@@ -91,25 +93,25 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
       </div>
 
       {/* Trump Info */}
-      <div className="absolute top-4 right-4 bg-slate-900/80 p-3 rounded-xl border border-white/10 flex flex-col items-center gap-1 z-20">
-         <span className="text-xs text-slate-400 uppercase font-bold tracking-widest">Trump</span>
+      <div className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-slate-900/80 p-1 sm:p-3 rounded-lg sm:rounded-xl border border-white/10 flex flex-col items-center gap-1 z-20">
+         <span className="text-[8px] sm:text-xs text-slate-400 uppercase font-bold tracking-widest hidden sm:block">Trump</span>
          {trumpRevealed ? (
-           <span className="text-2xl">{trumpSuit === 'hearts' || trumpSuit === 'diamonds' ? <span className="text-red-500">{trumpSuit === 'hearts' ? '♥' : '♦'}</span> : <span className="text-slate-200">{trumpSuit === 'clubs' ? '♣' : '♠'}</span>}</span>
+           <span className="text-lg sm:text-2xl">{trumpSuit === 'hearts' || trumpSuit === 'diamonds' ? <span className="text-red-500">{trumpSuit === 'hearts' ? '♥' : '♦'}</span> : <span className="text-slate-200">{trumpSuit === 'clubs' ? '♣' : '♠'}</span>}</span>
          ) : (
-           <span className="text-xl">❓</span>
+           <span className="text-sm sm:text-xl">❓</span>
          )}
          {status === 'playing' && !trumpRevealed && currentTrick.length > 0 && isMyTurn && (
            <button 
              onClick={onRevealTrump}
-             className="mt-2 text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/50 px-2 py-1 rounded"
+             className="mt-1 sm:mt-2 text-[9px] sm:text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/50 px-1 sm:px-2 py-0.5 sm:py-1 rounded leading-tight"
            >
-             Reveal Trump
+             Reveal
            </button>
          )}
       </div>
 
       {/* Scores Info */}
-      <div className="absolute top-2 sm:top-4 left-2 sm:left-4 flex gap-2 sm:gap-4 z-20 mt-8 sm:mt-0">
+      <div className="absolute top-2 sm:top-4 left-2 sm:left-4 flex gap-2 sm:gap-4 z-20">
          <div className="bg-blue-900/60 p-1 sm:p-2 rounded-md sm:rounded-lg border border-blue-500/30 text-center min-w-[3rem] sm:min-w-[4rem]">
             <div className="text-[8px] sm:text-[10px] text-blue-200 font-bold uppercase leading-none mb-1">Team A</div>
             <div className="text-sm sm:text-xl font-black text-white leading-none">{tricksWon['Team A']}</div>
@@ -132,10 +134,24 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
                 key={card.id} 
                 card={card} 
                 selectable={isMyTurn || isSelectingTrump}
+                selected={selectedCard === card.id}
                 disabled={(isMyTurn && !isValid) && !isSelectingTrump}
                 onClick={() => {
-                  if (isSelectingTrump) onSetTrump(card.id);
-                  else if (isMyTurn && isValid) onPlayCard(card.id);
+                  if (isSelectingTrump) {
+                    if (selectedCard === card.id) {
+                      onSetTrump(card.id);
+                      setSelectedCard(null);
+                    } else {
+                      setSelectedCard(card.id);
+                    }
+                  } else if (isMyTurn && isValid) {
+                    if (selectedCard === card.id) {
+                      onPlayCard(card.id);
+                      setSelectedCard(null);
+                    } else {
+                      setSelectedCard(card.id);
+                    }
+                  }
                 }}
               />
             );
