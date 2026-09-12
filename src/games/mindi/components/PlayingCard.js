@@ -19,10 +19,49 @@ export default function PlayingCard({ card, onClick, selectable, selected, hidde
     return (
       <div className="w-16 h-24 sm:w-20 sm:h-32 bg-blue-800 rounded-xl border-2 border-white/20 shadow-lg flex items-center justify-center relative overflow-hidden">
          <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/argyle.png')]"></div>
-         <div className="w-10 h-16 border-2 border-white/30 rounded-lg"></div>
+         <div className="w-10 h-16 border-2 border-white/30 rounded-lg flex items-center justify-center">
+            <span className="text-white/30 text-2xl">?</span>
+         </div>
       </div>
     );
   }
+
+  const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
+  const colorClass = isRed ? 'text-red-500' : 'text-slate-800';
+
+  const pipLayouts = {
+    2: ['t-c', 'b-c'],
+    3: ['t-c', 'm-c', 'b-c'],
+    4: ['t-l', 't-r', 'b-l', 'b-r'],
+    5: ['t-l', 't-r', 'b-l', 'b-r', 'm-c'],
+    6: ['t-l', 't-r', 'b-l', 'b-r', 'm-l', 'm-r'],
+    7: ['t-l', 't-r', 'b-l', 'b-r', 'm-l', 'm-r', 'tm-c'],
+    8: ['t-l', 't-r', 'b-l', 'b-r', 'm-l', 'm-r', 'tm-c', 'bm-c'],
+    9: ['t-l', 't-r', 'b-l', 'b-r', 'tm-l', 'tm-r', 'bm-l', 'bm-r', 'm-c'],
+    10: ['t-l', 't-r', 'b-l', 'b-r', 'tm-l', 'tm-r', 'bm-l', 'bm-r', 'tm-c', 'bm-c']
+  };
+
+  const pipPos = {
+    't-c': 'top-0 left-1/2 -translate-x-1/2',
+    'b-c': 'bottom-0 left-1/2 -translate-x-1/2 rotate-180',
+    'm-c': 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+    't-l': 'top-0 left-0',
+    't-r': 'top-0 right-0',
+    'b-l': 'bottom-0 left-0 rotate-180',
+    'b-r': 'bottom-0 right-0 rotate-180',
+    'm-l': 'top-1/2 left-0 -translate-y-1/2',
+    'm-r': 'top-1/2 right-0 -translate-y-1/2',
+    'tm-c': 'top-[25%] left-1/2 -translate-x-1/2',
+    'bm-c': 'bottom-[25%] left-1/2 -translate-x-1/2 rotate-180',
+    'tm-l': 'top-[33%] left-0 -translate-y-1/2',
+    'tm-r': 'top-[33%] right-0 -translate-y-1/2',
+    'bm-l': 'bottom-[33%] left-0 translate-y-1/2 rotate-180',
+    'bm-r': 'bottom-[33%] right-0 translate-y-1/2 rotate-180',
+  };
+
+  const isFaceCard = ['J', 'Q', 'K', 'A'].includes(card.rank);
+  const num = parseInt(card.rank, 10);
+  const pips = pipLayouts[num] || [];
 
   const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
   const colorClass = isRed ? 'text-red-500' : 'text-slate-800';
@@ -43,10 +82,20 @@ export default function PlayingCard({ card, onClick, selectable, selected, hidde
         <span className="text-sm sm:text-xl">{suitSymbols[card.suit]}</span>
       </div>
       
-      {/* Center Big */}
-      <div className={`absolute inset-0 flex items-center justify-center opacity-20 text-4xl sm:text-6xl ${colorClass}`}>
-        {suitSymbols[card.suit]}
-      </div>
+      {/* Center Display */}
+      {isFaceCard ? (
+        <div className={`absolute inset-0 flex items-center justify-center opacity-30 text-4xl sm:text-6xl ${colorClass}`}>
+          {suitSymbols[card.suit]}
+        </div>
+      ) : (
+        <div className="absolute top-[22%] bottom-[22%] left-[25%] right-[25%] opacity-80 pointer-events-none">
+          {pips.map((pos, i) => (
+            <div key={i} className={`absolute ${pipPos[pos]} text-[10px] sm:text-[14px] leading-none ${colorClass}`}>
+              {suitSymbols[card.suit]}
+            </div>
+          ))}
+        </div>
+      )}
       
       {/* Bottom Right */}
       <div className={`flex flex-col items-center leading-none rotate-180 ${colorClass}`}>

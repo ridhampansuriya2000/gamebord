@@ -63,6 +63,18 @@ export default function MindiPage() {
           >
             ← {gameMode === 'online' ? 'Leave' : 'Back'}
           </button>
+          
+          {status !== 'idle' && status !== 'waiting' && (
+            <button
+              onClick={handlePlayAgain}
+              disabled={gameMode === 'online' && onlineGame.restartRequested}
+              className={`fixed top-4 left-[90px] sm:left-28 z-50 flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-sm font-bold rounded-xl border border-amber-500/30 shadow-xl transition-all duration-300 ${(gameMode === 'online' && onlineGame.restartRequested) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+              title="Restart Game"
+            >
+              ↻ <span className="hidden sm:inline">{gameMode === 'online' && onlineGame.restartRequested ? `Waiting (${onlineGame.restartAcceptedCount}/4)` : 'Restart'}</span>
+            </button>
+          )}
+
           <GameHeader 
             gameMode={gameMode}
             roomId={onlineGame.roomId}

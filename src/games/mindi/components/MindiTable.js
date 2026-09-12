@@ -34,15 +34,20 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
     if (position === 'right') posClass = 'right-4 top-1/2 -translate-y-1/2 flex-row-reverse';
 
     return (
-      <div className={`absolute ${posClass} flex items-center gap-2 z-10 transition-all ${isTurn ? 'scale-110' : 'opacity-80'}`}>
-        <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center font-bold text-lg shadow-lg
+      <div className={`absolute ${posClass} flex items-center z-10 transition-all ${isTurn ? 'scale-110' : 'opacity-80'}`}>
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 flex items-center justify-center font-bold text-sm sm:text-lg shadow-lg
           ${isTurn ? 'border-cyan-400 bg-cyan-900/80 animate-pulse ring-4 ring-cyan-500/30' : 'border-white/20 bg-slate-800'}
         `}>
           P{seatIndex + 1}
         </div>
-        <div className={`flex flex-col ${position === 'bottom' ? 'items-center' : ''} ${position === 'left' ? 'items-start' : ''} ${position === 'right' ? 'items-end' : ''}`}>
-           <span className="text-white font-semibold whitespace-nowrap text-sm sm:text-base">{isMe ? 'YOU' : `Player ${seatIndex + 1}`}</span>
-           <span className={`text-xs font-bold ${team === 'Team A' ? 'text-blue-400' : 'text-rose-400'}`}>{team}</span>
+        <div className={`flex flex-col ${position === 'bottom' ? 'items-center mt-2' : ''} ${position === 'top' ? 'items-center mb-2' : ''} ${position === 'left' ? 'items-start ml-2' : ''} ${position === 'right' ? 'items-end mr-2' : ''}`}>
+           <span className="text-white font-semibold whitespace-nowrap text-xs sm:text-base">{isMe ? 'YOU' : `Player ${seatIndex + 1}`}</span>
+           <span className={`text-[10px] sm:text-xs font-bold ${team === 'Team A' ? 'text-blue-400' : 'text-rose-400'}`}>{team}</span>
+           {status === 'selecting_trump' && isTurn && !isMe && (
+             <span className="mt-1 text-[9px] sm:text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full animate-pulse whitespace-nowrap">
+               Selecting Trump...
+             </span>
+           )}
         </div>
       </div>
     );
@@ -59,7 +64,7 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
   };
 
   return (
-    <div className="w-full max-w-5xl aspect-square sm:aspect-video bg-green-900/60 rounded-[3rem] border-8 border-amber-900/80 shadow-2xl relative overflow-hidden flex items-center justify-center">
+    <div className="w-full max-w-5xl aspect-[3/4] sm:aspect-video bg-green-900/60 rounded-3xl sm:rounded-[3rem] border-4 sm:border-8 border-amber-900/80 shadow-2xl relative overflow-hidden flex items-center justify-center">
       
       {/* Felt Texture */}
       <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
@@ -68,14 +73,14 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
       {[0,1,2,3].map(seat => renderPlayerBadge(seat, getRelativeSeat(seat)))}
 
       {/* Center Trick Area */}
-      <div className="relative w-48 h-48 sm:w-64 sm:h-64 rounded-full border border-white/10 flex items-center justify-center bg-black/10">
+      <div className="relative w-36 h-36 sm:w-64 sm:h-64 rounded-full border border-white/10 flex items-center justify-center bg-black/10 mt-8 sm:mt-0">
          {currentTrick.map((play, idx) => {
            const rel = getRelativeSeat(play.seatIndex);
            let transform = '';
-           if (rel === 'bottom') transform = 'translate-y-6';
-           if (rel === 'top') transform = '-translate-y-6';
-           if (rel === 'left') transform = '-translate-x-8 -rotate-12';
-           if (rel === 'right') transform = 'translate-x-8 rotate-12';
+           if (rel === 'bottom') transform = 'translate-y-4 sm:translate-y-6';
+           if (rel === 'top') transform = '-translate-y-4 sm:-translate-y-6';
+           if (rel === 'left') transform = '-translate-x-6 sm:-translate-x-8 -rotate-12';
+           if (rel === 'right') transform = 'translate-x-6 sm:translate-x-8 rotate-12';
 
            return (
              <div key={idx} className={`absolute transition-all duration-300 ${transform} z-${idx}`}>
@@ -118,8 +123,8 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
       </div>
 
       {/* User Hand at Bottom */}
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center z-30">
-        <div className="flex -space-x-8 sm:-space-x-6 hover:space-x-1 transition-all duration-300 px-4 max-w-full overflow-x-auto pb-4 pt-8">
+      <div className="absolute bottom-2 sm:bottom-4 left-0 right-0 flex justify-center z-30">
+        <div className="flex -space-x-10 sm:-space-x-6 hover:-space-x-2 sm:hover:space-x-1 transition-all duration-300 px-4 max-w-full overflow-x-auto pb-4 pt-8">
           {sortedHand.map((card, idx) => {
             const isValid = validCards.some(c => c.id === card.id);
             return (
@@ -139,10 +144,10 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
       </div>
 
       {/* Center Status Overlay */}
-      {status === 'selecting_trump' && (
-        <div className="absolute inset-0 bg-black/60 z-40 flex items-center justify-center backdrop-blur-sm pointer-events-none">
-           <div className="text-2xl font-bold text-amber-400 bg-black/80 px-8 py-4 rounded-2xl border border-amber-500/30 shadow-2xl">
-              {isSelectingTrump ? "Select a card to hide as Trump" : `Player ${currentTurn + 1} is selecting Trump...`}
+      {status === 'selecting_trump' && isSelectingTrump && (
+        <div className="absolute top-[25%] left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+           <div className="text-sm sm:text-xl font-bold text-amber-400 bg-black/80 px-4 py-2 sm:px-6 sm:py-3 rounded-2xl border border-amber-500/30 shadow-2xl animate-bounce">
+              Select a card to hide as Trump! ↓
            </div>
         </div>
       )}
