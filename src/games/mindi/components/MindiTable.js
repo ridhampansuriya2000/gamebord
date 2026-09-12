@@ -64,7 +64,7 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
   };
 
   return (
-    <div className="w-full h-full max-h-[95dvw] sm:max-h-none sm:h-auto max-w-5xl sm:aspect-video bg-green-900/60 rounded-3xl sm:rounded-[3rem] border-4 sm:border-8 border-amber-900/80 shadow-2xl relative overflow-hidden flex items-center justify-center">
+    <div className="w-full h-full max-h-[100dvw] sm:max-h-none sm:h-auto max-w-5xl sm:aspect-video bg-green-900/60 rounded-3xl sm:rounded-[3rem] border-4 sm:border-8 border-amber-900/80 shadow-2xl relative overflow-hidden flex items-center justify-center">
       
       {/* Felt Texture */}
       <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
@@ -124,7 +124,7 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
 
       {/* User Hand at Bottom */}
       <div className="absolute bottom-2 sm:bottom-4 left-0 right-0 flex justify-center z-30">
-        <div className="flex -space-x-10 sm:-space-x-6 hover:-space-x-2 sm:hover:space-x-1 transition-all duration-300 px-4 max-w-full overflow-x-auto pb-4 pt-8">
+        <div className="flex -space-x-6 sm:-space-x-6 hover:-space-x-2 sm:hover:space-x-1 transition-all duration-300 px-4 max-w-full overflow-x-auto pb-4 pt-8">
           {sortedHand.map((card, idx) => {
             const isValid = validCards.some(c => c.id === card.id);
             return (
