@@ -34,6 +34,16 @@ const games = [
     accent: 'orange',
     available: true,
   },
+  {
+    id: 'mindi',
+    name: 'Mindi Coat',
+    subtitle: '4-Player Card Game',
+    icon: '🃏',
+    description: 'The classic Indian trick-taking card game. Play with 3 bots or with 3 friends online!',
+    color: 'from-amber-500/10 to-yellow-500/10',
+    accent: 'yellow',
+    available: true,
+  },
 ];
 
 const accentMap = {
@@ -57,6 +67,13 @@ const accentMap = {
     badge: 'text-orange-300 bg-orange-500/10 border-orange-500/20',
     arrow: 'group-hover:text-orange-400',
     btn: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
+  },
+  yellow: {
+    border: 'hover:border-yellow-500/50',
+    glow: 'hover:shadow-[0_0_30px_rgba(234,179,8,0.12)]',
+    badge: 'text-yellow-300 bg-yellow-500/10 border-yellow-500/20',
+    arrow: 'group-hover:text-yellow-400',
+    btn: 'bg-yellow-500/15 hover:bg-yellow-500/25 text-yellow-300 border-yellow-500/30',
   },
 };
 
