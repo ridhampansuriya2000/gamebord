@@ -1,7 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
+
+const getPlayerId = () => {
+  if (typeof window !== 'undefined') {
+    let pid = localStorage.getItem('gamebord_player_id');
+    if (!pid) {
+      pid = 'player_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('gamebord_player_id', pid);
+    }
+    return pid;
+  }
+  return 'default_id';
+};
 
 export const useOnlineSOS = () => {
   const [socket, setSocket] = useState(null);
@@ -27,7 +39,14 @@ export const useOnlineSOS = () => {
 
   const connect = () => {
     if (!socketRef.current) {
-      const newSocket = io(BACKEND_URL);
+      setStatus('connecting');
+      const playerId = getPlayerId();
+      const newSocket = io(SOCKET_URL, {
+        query: { playerId },
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
       setSocket(newSocket);
       socketRef.current = newSocket;
       setupListeners(newSocket);
@@ -37,6 +56,12 @@ export const useOnlineSOS = () => {
   const setupListeners = (socket) => {
     socket.on('connect', () => {
       setStatus('connected');
+      setError(null);
+    });
+
+    socket.on('connect_error', () => {
+      setError(`Could not connect to server. Check your connection!`);
+      setStatus('disconnected');
     });
 
     socket.on('room-created', ({ roomId }) => {
@@ -106,7 +131,8 @@ export const useOnlineSOS = () => {
     socket.on('error', ({ message }) => {
       setError(message);
       setRoomId(null);
-      setStatus('idle');
+      setStatus('connected');
+      setTimeout(() => setError(null), 3000);
     });
   };
 
@@ -154,11 +180,19 @@ export const useOnlineSOS = () => {
   const leaveRoom = () => {
     if (socket && roomId) {
       socket.emit('leave-room', { roomId });
-      setRoomId(null);
-      setStatus('idle');
-      setBoard(Array(25).fill(null));
-      setOpponentJoined(false);
     }
+    setRoomId(null);
+    setStatus('connected');
+    setBoard(Array(25).fill(null));
+    setScores({ X: 0, O: 0 });
+    setCurrentTurn(null);
+    setWinner(null);
+    setOpponentJoined(false);
+    setOpponentLeft(false);
+    setOpponentRequestedRestart(false);
+    setIRequestedRestart(false);
+    setRestartDeclined(false);
+    setError(null);
   };
 
   useEffect(() => {
