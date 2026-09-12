@@ -73,11 +73,11 @@ export const useOnlineSOS = () => {
       setOpponentLeft(false);
     });
 
-    socket.on('room-joined', ({ roomId }) => {
+    socket.on('player-joined', ({ roomId, player }) => {
       setRoomId(roomId);
       setStatus('waiting');
       setError(null);
-      setPlayerSymbol('O'); // Joiner is O
+      setPlayerSymbol(player); // Joiner gets symbol from payload
       setOpponentJoined(true);
       setOpponentLeft(false);
     });
