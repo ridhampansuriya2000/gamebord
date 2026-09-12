@@ -21,7 +21,7 @@ export default function MindiPage() {
   );
 
   const activeGame = gameMode === 'online' ? onlineGame : localGame;
-  const status = activeGame.status || 'idle';
+  const status = gameMode === 'online' ? onlineGame.status : (localGame.gameState?.status || 'idle');
 
   useEffect(() => {
     if (gameMode === 'local' && !activeGame.gameState) {
@@ -128,10 +128,10 @@ export default function MindiPage() {
              {onlineGame.players.length === 4 ? (
                <button 
                  onClick={onlineGame.startGame}
-                 disabled={onlineGame.players[0] !== localStorage.getItem('gamebord_player_id')} // Only host can start. (Hack for host check without storing socket ID specifically)
+                 disabled={onlineGame.players[0] !== sessionStorage.getItem('gamebord_player_id')} // Only host can start. (Hack for host check without storing socket ID specifically)
                  className="w-full py-3 mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 rounded-xl font-bold transition-all disabled:opacity-50"
                >
-                 {onlineGame.players[0] === localStorage.getItem('gamebord_player_id') ? 'Start Game' : 'Waiting for host to start...'}
+                 {onlineGame.players[0] === sessionStorage.getItem('gamebord_player_id') ? 'Start Game' : 'Waiting for host to start...'}
                </button>
              ) : (
                <div className="flex items-center gap-2 mt-4 text-amber-400">

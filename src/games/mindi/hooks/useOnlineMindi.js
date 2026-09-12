@@ -5,10 +5,10 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001'
 
 const getPlayerId = () => {
   if (typeof window !== 'undefined') {
-    let pid = localStorage.getItem('gamebord_player_id');
+    let pid = sessionStorage.getItem('gamebord_player_id');
     if (!pid) {
       pid = 'player_' + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('gamebord_player_id', pid);
+      sessionStorage.setItem('gamebord_player_id', pid);
     }
     return pid;
   }
