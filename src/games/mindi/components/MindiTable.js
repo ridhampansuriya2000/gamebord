@@ -64,7 +64,7 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
   };
 
   return (
-    <div className="w-full h-full max-h-[100dvw] sm:max-h-none sm:h-auto max-w-5xl sm:aspect-video bg-green-900/60 rounded-3xl sm:rounded-[3rem] border-4 sm:border-8 border-amber-900/80 shadow-2xl relative overflow-hidden flex items-center justify-center">
+    <div className="w-full h-full max-h-[100dvw] sm:max-h-none sm:h-auto max-w-5xl sm:aspect-video bg-green-900/60 sm:rounded-[3rem] sm:border-8 border-amber-900/80 sm:shadow-2xl relative overflow-hidden flex items-center justify-center">
       
       {/* Felt Texture */}
       <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>

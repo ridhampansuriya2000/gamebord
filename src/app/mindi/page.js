@@ -49,7 +49,7 @@ export default function MindiPage() {
   const isPlaying = activeGame.gameState && (status === 'selecting_trump' || status === 'playing' || status === 'trick_complete' || status === 'finished');
 
   return (
-    <div className={`min-h-screen bg-slate-900 text-white flex flex-col items-center p-4 font-sans overflow-x-hidden relative selection:bg-amber-500/30 ${isPlaying ? 'max-sm:portrait:fixed max-sm:portrait:inset-0 max-sm:portrait:w-[100dvh] max-sm:portrait:h-[100dvw] max-sm:portrait:rotate-90 max-sm:portrait:origin-top-left max-sm:portrait:translate-x-[100dvw] max-sm:portrait:z-[9999]' : ''}`}>
+    <div className={`min-h-screen bg-slate-900 text-white flex flex-col items-center sm:p-4 font-sans overflow-x-hidden relative selection:bg-amber-500/30 ${isPlaying ? 'max-sm:portrait:fixed max-sm:portrait:inset-0 max-sm:portrait:w-[100dvh] max-sm:portrait:h-[100dvw] max-sm:portrait:rotate-90 max-sm:portrait:origin-top-left max-sm:portrait:translate-x-[100dvw] max-sm:portrait:z-[9999]' : 'p-4'}`}>
       
       {/* Background decoration */}
       <div className="fixed inset-0 pointer-events-none">
@@ -62,7 +62,7 @@ export default function MindiPage() {
           <div className="fixed top-2 sm:top-4 left-2 sm:left-4 z-50 flex items-center gap-2 sm:gap-4">
             <button
               onClick={handleLeaveOrBack}
-              className="flex items-center justify-center gap-1 sm:gap-2 w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 bg-slate-900/90 hover:bg-slate-800 backdrop-blur-md text-slate-200 hover:text-white text-lg sm:text-sm font-bold rounded-lg sm:rounded-xl border border-white/10 shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+              className="flex items-center justify-center gap-1 sm:gap-2 w-8 h-8 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 bg-slate-900/50 sm:bg-slate-900/90 hover:bg-slate-800 backdrop-blur-md text-slate-200 hover:text-white text-sm font-bold rounded-full sm:rounded-xl border border-white/10 shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
               title={gameMode === 'online' ? 'Leave Room' : 'Go Back'}
             >
               ← <span className="hidden sm:inline">{gameMode === 'online' ? 'Leave' : 'Back'}</span>
@@ -72,7 +72,7 @@ export default function MindiPage() {
               <button
                 onClick={handlePlayAgain}
                 disabled={gameMode === 'online' && onlineGame.restartRequested}
-                className={`flex items-center justify-center gap-1 sm:gap-2 w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-lg sm:text-sm font-bold rounded-lg sm:rounded-xl border border-amber-500/30 shadow-xl transition-all duration-300 ${(gameMode === 'online' && onlineGame.restartRequested) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+                className={`flex items-center justify-center gap-1 sm:gap-2 w-8 h-8 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-sm font-bold rounded-full sm:rounded-xl border border-amber-500/30 shadow-xl transition-all duration-300 ${(gameMode === 'online' && onlineGame.restartRequested) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
                 title="Restart Game"
               >
                 ↻ <span className="hidden sm:inline">{gameMode === 'online' && onlineGame.restartRequested ? `Waiting (${onlineGame.restartAcceptedCount}/4)` : 'Restart'}</span>
@@ -90,7 +90,7 @@ export default function MindiPage() {
         </>
       )}
 
-      <main className="relative z-10 w-full max-w-5xl flex flex-col items-center mt-12 sm:mt-16">
+      <main className={`relative z-10 w-full max-w-5xl flex flex-col items-center ${isPlaying ? 'max-sm:h-full max-sm:flex-1 max-sm:justify-center' : 'mt-12 sm:mt-16'}`}>
         
         {/* Title */}
         <div className={`mb-6 text-center animate-in fade-in slide-in-from-top-8 duration-700 ${isPlaying ? 'max-sm:hidden' : ''}`}>
