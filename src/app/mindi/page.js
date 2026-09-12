@@ -59,23 +59,26 @@ export default function MindiPage() {
 
       {(gameMode === 'local' || (gameMode === 'online' && onlineGame.roomId)) && (
         <>
-          <button
-            onClick={handleLeaveOrBack}
-            className="fixed top-4 left-4 z-50 flex items-center gap-2 px-4 py-2.5 bg-slate-900/90 hover:bg-slate-800 backdrop-blur-md text-slate-200 hover:text-white text-sm font-bold rounded-xl border border-white/10 shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
-          >
-            ← {gameMode === 'online' ? 'Leave' : 'Back'}
-          </button>
-          
-          {status !== 'idle' && status !== 'waiting' && (
+          <div className="fixed top-2 sm:top-4 left-2 sm:left-4 z-50 flex items-center gap-2 sm:gap-4">
             <button
-              onClick={handlePlayAgain}
-              disabled={gameMode === 'online' && onlineGame.restartRequested}
-              className={`fixed top-4 left-[90px] sm:left-28 z-50 flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-sm font-bold rounded-xl border border-amber-500/30 shadow-xl transition-all duration-300 ${(gameMode === 'online' && onlineGame.restartRequested) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
-              title="Restart Game"
+              onClick={handleLeaveOrBack}
+              className="flex items-center justify-center gap-1 sm:gap-2 w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 bg-slate-900/90 hover:bg-slate-800 backdrop-blur-md text-slate-200 hover:text-white text-lg sm:text-sm font-bold rounded-lg sm:rounded-xl border border-white/10 shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+              title={gameMode === 'online' ? 'Leave Room' : 'Go Back'}
             >
-              ↻ <span className="hidden sm:inline">{gameMode === 'online' && onlineGame.restartRequested ? `Waiting (${onlineGame.restartAcceptedCount}/4)` : 'Restart'}</span>
+              ← <span className="hidden sm:inline">{gameMode === 'online' ? 'Leave' : 'Back'}</span>
             </button>
-          )}
+            
+            {status !== 'idle' && status !== 'waiting' && (
+              <button
+                onClick={handlePlayAgain}
+                disabled={gameMode === 'online' && onlineGame.restartRequested}
+                className={`flex items-center justify-center gap-1 sm:gap-2 w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-lg sm:text-sm font-bold rounded-lg sm:rounded-xl border border-amber-500/30 shadow-xl transition-all duration-300 ${(gameMode === 'online' && onlineGame.restartRequested) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+                title="Restart Game"
+              >
+                ↻ <span className="hidden sm:inline">{gameMode === 'online' && onlineGame.restartRequested ? `Waiting (${onlineGame.restartAcceptedCount}/4)` : 'Restart'}</span>
+              </button>
+            )}
+          </div>
 
           <GameHeader 
             gameMode={gameMode}
@@ -90,7 +93,7 @@ export default function MindiPage() {
       <main className="relative z-10 w-full max-w-5xl flex flex-col items-center mt-12 sm:mt-16">
         
         {/* Title */}
-        <div className="mb-6 text-center animate-in fade-in slide-in-from-top-8 duration-700">
+        <div className={`mb-6 text-center animate-in fade-in slide-in-from-top-8 duration-700 ${isPlaying ? 'max-sm:hidden' : ''}`}>
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-br from-amber-200 via-yellow-400 to-orange-500 drop-shadow-sm mb-2">
             MINDI COAT
           </h1>
