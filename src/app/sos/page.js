@@ -20,8 +20,8 @@ export default function SOSPage() {
   const onlineGame = useOnlineSOS();
 
   const rtc = useWebRTC(
-    gameMode === 'online' ? onlineGame.roomId : null,
-    gameMode === 'online' ? onlineGame.playerSymbol : null
+    gameMode === 'online' ? onlineGame.socket : null,
+    gameMode === 'online' ? onlineGame.roomId : null
   );
 
   const activeGame = gameMode === 'online' ? onlineGame : localGame;

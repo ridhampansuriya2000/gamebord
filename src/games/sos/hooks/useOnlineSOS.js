@@ -217,6 +217,7 @@ export const useOnlineSOS = () => {
     opponentRequestedRestart,
     iRequestedRestart,
     restartDeclined,
+    socket,
     connect,
     createRoom,
     joinRoom,
