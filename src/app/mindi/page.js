@@ -49,7 +49,7 @@ export default function MindiPage() {
   const isPlaying = activeGame.gameState && (status === 'selecting_trump' || status === 'playing' || status === 'trick_complete' || status === 'finished');
 
   return (
-    <div className={`min-h-screen bg-slate-900 text-white flex flex-col items-center p-4 font-sans overflow-x-hidden relative selection:bg-amber-500/30 ${isPlaying ? 'max-sm:portrait:fixed max-sm:portrait:inset-0 max-sm:portrait:w-[100dvh] max-sm:portrait:h-[100dvw] max-sm:portrait:rotate-90 max-sm:portrait:origin-top-left max-sm:portrait:translate-x-[100dvw] max-sm:portrait:z-[9999]' : ''}`}>
+    <div className={`min-h-screen bg-slate-900 text-white flex flex-col items-center sm:p-4 font-sans overflow-x-hidden relative selection:bg-amber-500/30 ${isPlaying ? 'max-sm:portrait:fixed max-sm:portrait:inset-0 max-sm:portrait:w-[100dvh] max-sm:portrait:h-[100dvw] max-sm:portrait:rotate-90 max-sm:portrait:origin-top-left max-sm:portrait:translate-x-[100dvw] max-sm:portrait:z-[9999]' : 'p-4'}`}>
       
       {/* Background decoration */}
       <div className="fixed inset-0 pointer-events-none">
@@ -90,7 +90,7 @@ export default function MindiPage() {
         </>
       )}
 
-      <main className={`relative z-10 w-full max-w-5xl flex flex-col items-center ${isPlaying ? 'max-sm:h-full max-sm:flex-1 max-sm:justify-center' : 'mt-12 sm:mt-16'}`}>
+      <main className={`relative z-10 w-full max-w-5xl flex flex-col items-center ${isPlaying ? 'max-sm:h-[calc(100dvw-48px)] max-sm:mt-[48px] max-sm:px-4 max-sm:pb-4 max-sm:overflow-hidden' : 'mt-12 sm:mt-16'}`}>
         
         {/* Title */}
         <div className={`mb-6 text-center animate-in fade-in slide-in-from-top-8 duration-700 ${isPlaying ? 'max-sm:hidden' : ''}`}>
@@ -161,7 +161,7 @@ export default function MindiPage() {
 
         {/* Main Game Interface */}
         {activeGame.gameState && (status === 'selecting_trump' || status === 'playing' || status === 'trick_complete' || status === 'finished') && (
-          <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500">
+          <div className="w-full h-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500 max-sm:overflow-hidden">
             
             {/* Action Bar */}
             {gameMode === 'local' && localGame.botActionMessage && (
