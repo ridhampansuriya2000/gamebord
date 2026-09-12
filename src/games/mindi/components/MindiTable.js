@@ -64,7 +64,7 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
   };
 
   return (
-    <div className="w-full h-full max-h-[100dvw] sm:max-h-none sm:h-auto max-w-5xl sm:aspect-video bg-green-900/60 sm:rounded-[3rem] sm:border-8 border-amber-900/80 sm:shadow-2xl relative overflow-hidden flex items-center justify-center">
+    <div className="w-full h-full max-h-[100dvw] sm:max-h-none sm:h-auto max-w-5xl sm:aspect-video bg-green-900/60 rounded-2xl sm:rounded-[3rem] border-4 sm:border-8 border-amber-900/80 shadow-xl sm:shadow-2xl relative overflow-hidden flex items-center justify-center">
       
       {/* Felt Texture */}
       <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
@@ -109,16 +109,16 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
       </div>
 
       {/* Scores Info */}
-      <div className="absolute top-4 left-4 flex gap-4 z-20">
-         <div className="bg-blue-900/60 p-2 rounded-lg border border-blue-500/30 text-center min-w-[4rem]">
-            <div className="text-[10px] text-blue-200 font-bold uppercase">Team A</div>
-            <div className="text-xl font-black text-white">{tricksWon['Team A']}</div>
-            <div className="text-xs text-blue-300">{capturedMindis['Team A'].length} 10s</div>
+      <div className="absolute top-2 sm:top-4 left-2 sm:left-4 flex gap-2 sm:gap-4 z-20 mt-8 sm:mt-0">
+         <div className="bg-blue-900/60 p-1 sm:p-2 rounded-md sm:rounded-lg border border-blue-500/30 text-center min-w-[3rem] sm:min-w-[4rem]">
+            <div className="text-[8px] sm:text-[10px] text-blue-200 font-bold uppercase leading-none mb-1">Team A</div>
+            <div className="text-sm sm:text-xl font-black text-white leading-none">{tricksWon['Team A']}</div>
+            <div className="text-[8px] sm:text-xs text-blue-300 mt-1">{capturedMindis['Team A'].length} 10s</div>
          </div>
-         <div className="bg-rose-900/60 p-2 rounded-lg border border-rose-500/30 text-center min-w-[4rem]">
-            <div className="text-[10px] text-rose-200 font-bold uppercase">Team B</div>
-            <div className="text-xl font-black text-white">{tricksWon['Team B']}</div>
-            <div className="text-xs text-rose-300">{capturedMindis['Team B'].length} 10s</div>
+         <div className="bg-rose-900/60 p-1 sm:p-2 rounded-md sm:rounded-lg border border-rose-500/30 text-center min-w-[3rem] sm:min-w-[4rem]">
+            <div className="text-[8px] sm:text-[10px] text-rose-200 font-bold uppercase leading-none mb-1">Team B</div>
+            <div className="text-sm sm:text-xl font-black text-white leading-none">{tricksWon['Team B']}</div>
+            <div className="text-[8px] sm:text-xs text-rose-300 mt-1">{capturedMindis['Team B'].length} 10s</div>
          </div>
       </div>
 

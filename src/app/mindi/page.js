@@ -49,7 +49,7 @@ export default function MindiPage() {
   const isPlaying = activeGame.gameState && (status === 'selecting_trump' || status === 'playing' || status === 'trick_complete' || status === 'finished');
 
   return (
-    <div className={`min-h-screen bg-slate-900 text-white flex flex-col items-center sm:p-4 font-sans overflow-x-hidden relative selection:bg-amber-500/30 ${isPlaying ? 'max-sm:portrait:fixed max-sm:portrait:inset-0 max-sm:portrait:w-[100dvh] max-sm:portrait:h-[100dvw] max-sm:portrait:rotate-90 max-sm:portrait:origin-top-left max-sm:portrait:translate-x-[100dvw] max-sm:portrait:z-[9999]' : 'p-4'}`}>
+    <div className={`min-h-screen bg-slate-900 text-white flex flex-col items-center p-4 font-sans overflow-x-hidden relative selection:bg-amber-500/30 ${isPlaying ? 'max-sm:portrait:fixed max-sm:portrait:inset-0 max-sm:portrait:w-[100dvh] max-sm:portrait:h-[100dvw] max-sm:portrait:rotate-90 max-sm:portrait:origin-top-left max-sm:portrait:translate-x-[100dvw] max-sm:portrait:z-[9999]' : ''}`}>
       
       {/* Background decoration */}
       <div className="fixed inset-0 pointer-events-none">
@@ -164,11 +164,11 @@ export default function MindiPage() {
           <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500">
             
             {/* Action Bar */}
-            <div className="mb-4 h-8 flex items-center justify-center w-full">
-              {gameMode === 'local' && localGame.botActionMessage && (
-                <span className="text-amber-300 font-medium animate-pulse">{localGame.botActionMessage}</span>
-              )}
-            </div>
+            {gameMode === 'local' && localGame.botActionMessage && (
+              <div className="mb-2 sm:mb-4 h-6 sm:h-8 flex items-center justify-center w-full">
+                <span className="text-amber-300 font-medium animate-pulse text-sm sm:text-base">{localGame.botActionMessage}</span>
+              </div>
+            )}
 
             <MindiTable 
               gameState={activeGame.gameState}
