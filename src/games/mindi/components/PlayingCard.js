@@ -63,8 +63,6 @@ export default function PlayingCard({ card, onClick, selectable, selected, hidde
   const num = parseInt(card.rank, 10);
   const pips = pipLayouts[num] || [];
 
-  const isRed = card.suit === 'hearts' || card.suit === 'diamonds';
-  const colorClass = isRed ? 'text-red-500' : 'text-slate-800';
 
   return (
     <button
