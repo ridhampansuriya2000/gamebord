@@ -5,7 +5,12 @@ import { soundEngine } from '../utils/sound';
 
 export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, onRevealTrump }) {
   const [selectedCard, setSelectedCard] = useState(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const prevGameState = useRef(gameState);
+
+  useEffect(() => {
+    soundEngine.enabled = soundEnabled;
+  }, [soundEnabled]);
 
   useEffect(() => {
     if (!gameState || !prevGameState.current) {
@@ -135,22 +140,32 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
          })}
       </div>
 
-      {/* Trump Info */}
-      <div className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-slate-900/80 p-1 sm:p-3 rounded-lg sm:rounded-xl border border-white/10 flex flex-col items-center gap-1 z-20">
-         <span className="text-[8px] sm:text-xs text-slate-400 uppercase font-bold tracking-widest hidden sm:block">Trump</span>
-         {trumpRevealed ? (
-           <span className="text-lg sm:text-2xl">{trumpSuit === 'hearts' || trumpSuit === 'diamonds' ? <span className="text-red-500">{trumpSuit === 'hearts' ? '♥' : '♦'}</span> : <span className="text-slate-200">{trumpSuit === 'clubs' ? '♣' : '♠'}</span>}</span>
-         ) : (
-           <span className="text-sm sm:text-xl">❓</span>
-         )}
-         {status === 'playing' && !trumpRevealed && currentTrick.length > 0 && isMyTurn && (
-           <button 
-             onClick={onRevealTrump}
-             className="mt-1 sm:mt-2 text-[9px] sm:text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/50 px-1 sm:px-2 py-0.5 sm:py-1 rounded leading-tight"
-           >
-             Reveal
-           </button>
-         )}
+      {/* Trump Info & Controls */}
+      <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex items-center gap-2 z-20">
+         <button 
+           onClick={() => setSoundEnabled(!soundEnabled)}
+           className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-900/80 rounded-lg sm:rounded-xl border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 transition-colors shadow-lg"
+           title={soundEnabled ? 'Mute Sounds' : 'Enable Sounds'}
+         >
+           {soundEnabled ? '🔊' : '🔇'}
+         </button>
+
+         <div className="bg-slate-900/80 p-1 sm:p-3 rounded-lg sm:rounded-xl border border-white/10 flex flex-col items-center gap-1">
+            <span className="text-[8px] sm:text-xs text-slate-400 uppercase font-bold tracking-widest hidden sm:block">Trump</span>
+            {trumpRevealed ? (
+              <span className="text-lg sm:text-2xl">{trumpSuit === 'hearts' || trumpSuit === 'diamonds' ? <span className="text-red-500">{trumpSuit === 'hearts' ? '♥' : '♦'}</span> : <span className="text-slate-200">{trumpSuit === 'clubs' ? '♣' : '♠'}</span>}</span>
+            ) : (
+              <span className="text-sm sm:text-xl">❓</span>
+            )}
+            {status === 'playing' && !trumpRevealed && currentTrick.length > 0 && isMyTurn && (
+              <button 
+                onClick={onRevealTrump}
+                className="mt-1 sm:mt-2 text-[9px] sm:text-xs bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 border border-amber-500/50 px-1 sm:px-2 py-0.5 sm:py-1 rounded leading-tight"
+              >
+                Reveal
+              </button>
+            )}
+         </div>
       </div>
 
       {/* Scores Info */}
@@ -179,6 +194,7 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
                 selectable={isMyTurn || isSelectingTrump}
                 selected={selectedCard === card.id}
                 disabled={(isMyTurn && !isValid) && !isSelectingTrump}
+                onMouseEnter={() => soundEngine.playCardHover()}
                 onClick={() => {
                   if (isSelectingTrump) {
                     if (selectedCard === card.id) {

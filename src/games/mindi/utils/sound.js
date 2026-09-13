@@ -42,6 +42,31 @@ class SoundEngine {
     osc.stop(t + 0.1);
   }
 
+  playCardHover() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+    
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    // Very light, short tick for hover
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, t);
+    osc.frequency.exponentialRampToValueAtTime(800, t + 0.02);
+    
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.05, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.04);
+    
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    
+    osc.start(t);
+    osc.stop(t + 0.04);
+  }
+
   playTrickGather() {
     if (!this.enabled) return;
     this.init();

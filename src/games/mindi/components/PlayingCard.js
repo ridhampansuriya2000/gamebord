@@ -14,7 +14,7 @@ const suitColors = {
   spades: 'text-slate-900'
 };
 
-export default function PlayingCard({ card, onClick, selectable, selected, hidden, disabled }) {
+export default function PlayingCard({ card, onClick, onMouseEnter, selectable, selected, hidden, disabled }) {
   if (hidden) {
     return (
       <div className="w-12 h-16 sm:w-20 sm:h-32 bg-blue-800 rounded-xl border-2 border-white/20 shadow-lg flex items-center justify-center relative overflow-hidden">
@@ -67,6 +67,7 @@ export default function PlayingCard({ card, onClick, selectable, selected, hidde
   return (
     <button
       onClick={() => selectable && onClick && onClick(card)}
+      onMouseEnter={() => selectable && onMouseEnter && onMouseEnter(card)}
       disabled={disabled || !selectable}
       className={`relative w-12 h-16 sm:w-20 sm:h-32 bg-white rounded-xl border shadow-lg overflow-hidden transition-all duration-200 
         ${selectable ? 'hover:-translate-y-2 cursor-pointer shadow-cyan-500/20 hover:shadow-cyan-500/40' : 'cursor-default'} 
