@@ -88,12 +88,12 @@ export default function PlayingCard({ card, onClick, selectable, selected, hidde
       {/* Center Display */}
       {isFaceCard ? (
         <div className={`absolute inset-0 flex items-center justify-center pointer-events-none opacity-100 ${colorClass}`}>
-          <div className="text-xl sm:text-3xl leading-none">{suitSymbols[card.suit]}</div>
+          <div className="text-sm sm:text-xl leading-none">{suitSymbols[card.suit]}</div>
         </div>
       ) : (
         <div className="absolute top-[22%] bottom-[22%] left-[25%] right-[25%] opacity-100 pointer-events-none">
           {pips.map((pos, i) => (
-            <div key={i} className={`absolute ${pipPos[pos]} text-[8px] sm:text-[12px] leading-none ${colorClass}`}>
+            <div key={i} className={`absolute ${pipPos[pos]} text-sm sm:text-xl leading-none ${colorClass}`}>
               {suitSymbols[card.suit]}
             </div>
           ))}
