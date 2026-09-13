@@ -11,6 +11,7 @@ import MindiTable from '@/games/mindi/components/MindiTable';
 export default function MindiPage() {
   const [gameMode, setGameMode] = useState(null); // 'local' | 'online' | null
   const [joinCode, setJoinCode] = useState('');
+  const [mindiConfig, setMindiConfig] = useState('4_humans');
 
   const localGame = useMindiBotGame();
   const onlineGame = useOnlineMindi();
@@ -118,19 +119,36 @@ export default function MindiPage() {
             error={onlineGame.error}
             joinCode={joinCode}
             setJoinCode={setJoinCode}
-            onCreateRoom={onlineGame.createRoom}
+            onCreateRoom={() => onlineGame.createRoom({ mode: mindiConfig })}
             onJoinRoom={onlineGame.joinRoom}
             onConnectRetry={onlineGame.connect}
             onBack={() => setGameMode(null)}
+            renderCreateOptions={() => (
+              <div className="w-full bg-black/20 p-4 rounded-xl border border-white/10 mb-2 flex flex-col gap-3">
+                <span className="font-semibold text-slate-300 text-sm">Room Setup</span>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="mindi-mode" value="4_humans" checked={mindiConfig === '4_humans'} onChange={(e) => setMindiConfig(e.target.value)} className="w-4 h-4 text-emerald-500" />
+                  <span className="text-sm">4 Players (Humans Only)</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="mindi-mode" value="2_humans_team" checked={mindiConfig === '2_humans_team'} onChange={(e) => setMindiConfig(e.target.value)} className="w-4 h-4 text-emerald-500" />
+                  <span className="text-sm">2 Players (Humans vs Bots)</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="radio" name="mindi-mode" value="2_humans_mixed" checked={mindiConfig === '2_humans_mixed'} onChange={(e) => setMindiConfig(e.target.value)} className="w-4 h-4 text-emerald-500" />
+                  <span className="text-sm">2 Players (Mixed Teams)</span>
+                </label>
+              </div>
+            )}
           />
         )}
 
         {/* Online Waiting Lobby */}
         {gameMode === 'online' && status === 'waiting' && (
           <div className="flex flex-col items-center gap-4 py-12 w-full max-w-md animate-in slide-in-from-bottom-4 duration-500">
-             <div className="text-xl font-semibold mb-2">Players Joined: {onlineGame.players.length} / 4</div>
+             <div className="text-xl font-semibold mb-2">Players Joined: {onlineGame.players.length} / {onlineGame.maxPlayers || 4}</div>
              <div className="w-full bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
-               {[0,1,2,3].map(i => (
+               {Array.from({ length: onlineGame.maxPlayers || 4 }).map((_, i) => (
                  <div key={i} className="flex items-center gap-3 bg-black/20 p-2 rounded-lg">
                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${i < onlineGame.players.length ? 'bg-emerald-500 text-emerald-950' : 'bg-slate-700 text-slate-500'}`}>
                      {i < onlineGame.players.length ? '✓' : '?'}
@@ -142,10 +160,10 @@ export default function MindiPage() {
                ))}
              </div>
              
-             {onlineGame.players.length === 4 ? (
+             {onlineGame.players.length === (onlineGame.maxPlayers || 4) ? (
                <button 
                  onClick={onlineGame.startGame}
-                 disabled={onlineGame.players[0] !== sessionStorage.getItem('gamebord_player_id')} // Only host can start. (Hack for host check without storing socket ID specifically)
+                 disabled={onlineGame.players[0] !== sessionStorage.getItem('gamebord_player_id')} // Only host can start
                  className="w-full py-3 mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 rounded-xl font-bold transition-all disabled:opacity-50"
                >
                  {onlineGame.players[0] === sessionStorage.getItem('gamebord_player_id') ? 'Start Game' : 'Waiting for host to start...'}

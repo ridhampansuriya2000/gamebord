@@ -8,7 +8,8 @@ export default function OnlineLobby({
   onCreateRoom,
   onJoinRoom,
   onConnectRetry,
-  onBack
+  onBack,
+  renderCreateOptions
 }) {
   const isConnecting = status === 'idle' || status === 'connecting';
   const isDisconnected = status === 'disconnected';
@@ -41,6 +42,7 @@ export default function OnlineLobby({
         </div>
       ) : !isDisconnected ? (
         <div className="flex flex-col w-full gap-4">
+          {renderCreateOptions && renderCreateOptions()}
           <button
             onClick={onCreateRoom}
             className="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 rounded-xl transition-all font-bold shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)]"

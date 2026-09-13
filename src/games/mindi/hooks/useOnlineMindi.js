@@ -20,6 +20,7 @@ export const useOnlineMindi = () => {
   const [roomId, setRoomId] = useState(null);
   const [mySeat, setMySeat] = useState(null);
   const [players, setPlayers] = useState([]);
+  const [maxPlayers, setMaxPlayers] = useState(4);
   
   const [gameState, setGameState] = useState(null);
   
@@ -56,20 +57,23 @@ export const useOnlineMindi = () => {
       setStatus('disconnected');
     });
 
-    socket.on('room-created', ({ roomId }) => {
+    socket.on('room-created', ({ roomId, maxPlayers }) => {
       setRoomId(roomId);
       setStatus('waiting');
       setPlayers([getPlayerId()]); // Creator is first
+      if (maxPlayers) setMaxPlayers(maxPlayers);
     });
 
-    socket.on('player-joined', ({ roomId, players }) => {
+    socket.on('player-joined', ({ roomId, players, maxPlayers }) => {
       setRoomId(roomId);
       setStatus('waiting');
       setPlayers(players);
+      if (maxPlayers) setMaxPlayers(maxPlayers);
     });
 
-    socket.on('opponent-joined', ({ players }) => {
+    socket.on('opponent-joined', ({ players, maxPlayers }) => {
       setPlayers(players);
+      if (maxPlayers) setMaxPlayers(maxPlayers);
     });
 
     socket.on('mindi-game-state', (state) => {
@@ -97,8 +101,8 @@ export const useOnlineMindi = () => {
     });
   };
 
-  const createRoom = () => {
-    if (socket) socket.emit('create-room', { gameType: 'mindi' });
+  const createRoom = (config = { mode: '4_humans' }) => {
+    if (socket) socket.emit('create-room', { gameType: 'mindi', config });
   };
 
   const joinRoom = (id) => {
@@ -145,6 +149,7 @@ export const useOnlineMindi = () => {
   return {
     roomId,
     players,
+    maxPlayers,
     mySeat,
     gameState,
     status,
