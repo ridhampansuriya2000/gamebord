@@ -1,9 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PlayingCard from './PlayingCard';
 import { getValidCards } from '../engine/trumpRules';
+import { soundEngine } from '../utils/sound';
 
 export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, onRevealTrump }) {
   const [selectedCard, setSelectedCard] = useState(null);
+  const prevGameState = useRef(gameState);
+
+  useEffect(() => {
+    if (!gameState || !prevGameState.current) {
+      prevGameState.current = gameState;
+      return;
+    }
+
+    const prev = prevGameState.current;
+    const curr = gameState;
+
+    // Initialize audio context on first interaction
+    const initSound = () => soundEngine.init();
+    document.addEventListener('click', initSound, { once: true });
+
+    if (curr.playedCards.length > prev.playedCards.length) {
+      soundEngine.playCardSnap();
+    }
+
+    if (curr.status === 'trick_complete' && prev.status !== 'trick_complete') {
+      soundEngine.playTrickGather();
+    }
+
+    if (prev.status === 'selecting_trump' && curr.status === 'playing') {
+      soundEngine.playTrumpSet();
+    }
+
+    if (!prev.trumpRevealed && curr.trumpRevealed) {
+      soundEngine.playTrumpReveal();
+    }
+
+    if (curr.status === 'finished' && prev.status !== 'finished') {
+      let isWin = false;
+      if (curr.winner) {
+        const myTeam = mySeat % 2 === 0 ? 'Team A' : 'Team B';
+        isWin = curr.winner === myTeam;
+      }
+      soundEngine.playGameEnd(isWin);
+    }
+
+    prevGameState.current = curr;
+  }, [gameState, mySeat]);
 
   if (!gameState) return null;
 
