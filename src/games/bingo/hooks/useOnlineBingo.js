@@ -133,7 +133,12 @@ export const useOnlineBingo = () => {
       setStatus('finished');
     });
 
-    newSocket.on('bingo-game-reset', () => {
+    newSocket.on('bingo-game-reset', ({ playerX, playerO } = {}) => {
+      if (playerX && playerO) {
+        const pid = getPlayerId();
+        if (playerX === pid) setSymbol('X');
+        else if (playerO === pid) setSymbol('O');
+      }
       setHumanBoard(null);
       setOpponentBoard(null);
       setCalledNumbers([]);
