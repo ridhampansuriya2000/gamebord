@@ -68,37 +68,42 @@ export default function PlayingCard({ card, onClick, selectable, selected, hidde
     <button
       onClick={() => selectable && onClick && onClick(card)}
       disabled={disabled || !selectable}
-      className={`relative w-12 h-16 sm:w-20 sm:h-32 bg-white rounded-xl border shadow-lg flex flex-col justify-between p-1 sm:p-2 transition-all duration-200 
+      className={`relative w-12 h-16 sm:w-20 sm:h-32 bg-white rounded-xl border shadow-lg overflow-hidden transition-all duration-200 
         ${selectable ? 'hover:-translate-y-2 cursor-pointer shadow-cyan-500/20 hover:shadow-cyan-500/40' : 'cursor-default'} 
         ${selected ? '-translate-y-4 shadow-cyan-500/50 ring-2 ring-cyan-400 max-sm:scale-125 max-sm:z-50' : ''} 
         ${disabled ? 'opacity-50 grayscale cursor-not-allowed' : ''}
       `}
     >
-      {/* Top Left */}
-      <div className={`flex flex-col items-center leading-none ${colorClass}`}>
-        <span className="text-sm sm:text-lg font-black">{card.rank}</span>
-        <span className="text-sm sm:text-xl">{suitSymbols[card.suit]}</span>
+      {/* Big Light Background Symbol (On every card) */}
+      <div className={`absolute inset-0 flex items-center justify-center opacity-10 text-5xl sm:text-8xl pointer-events-none ${colorClass}`}>
+        {suitSymbols[card.suit]}
+      </div>
+
+      {/* Top Left Corner */}
+      <div className={`absolute top-1 left-1 sm:top-1.5 sm:left-1.5 flex flex-col items-center leading-none ${colorClass}`}>
+        <span className="text-[10px] sm:text-[14px] font-black">{card.rank}</span>
+        <span className="text-[8px] sm:text-[12px]">{suitSymbols[card.suit]}</span>
       </div>
       
       {/* Center Display */}
       {isFaceCard ? (
-        <div className={`absolute inset-0 flex items-center justify-center opacity-30 text-4xl sm:text-6xl ${colorClass}`}>
-          {suitSymbols[card.suit]}
+        <div className={`absolute inset-0 flex items-center justify-center pointer-events-none opacity-100 ${colorClass}`}>
+          <div className="text-xl sm:text-3xl leading-none">{suitSymbols[card.suit]}</div>
         </div>
       ) : (
-        <div className="absolute top-[22%] bottom-[22%] left-[25%] right-[25%] opacity-80 pointer-events-none">
+        <div className="absolute top-[22%] bottom-[22%] left-[25%] right-[25%] opacity-100 pointer-events-none">
           {pips.map((pos, i) => (
-            <div key={i} className={`absolute ${pipPos[pos]} text-[10px] sm:text-[14px] leading-none ${colorClass}`}>
+            <div key={i} className={`absolute ${pipPos[pos]} text-[8px] sm:text-[12px] leading-none ${colorClass}`}>
               {suitSymbols[card.suit]}
             </div>
           ))}
         </div>
       )}
       
-      {/* Bottom Right */}
-      <div className={`hidden sm:flex flex-col items-center leading-none rotate-180 ${colorClass}`}>
-        <span className="text-sm sm:text-lg font-black">{card.rank}</span>
-        <span className="text-sm sm:text-xl">{suitSymbols[card.suit]}</span>
+      {/* Bottom Right Corner */}
+      <div className={`hidden sm:flex absolute bottom-1 right-1 sm:bottom-1.5 sm:right-1.5 flex-col items-center leading-none rotate-180 ${colorClass}`}>
+        <span className="text-[10px] sm:text-[14px] font-black">{card.rank}</span>
+        <span className="text-[8px] sm:text-[12px]">{suitSymbols[card.suit]}</span>
       </div>
     </button>
   );
