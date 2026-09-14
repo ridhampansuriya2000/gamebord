@@ -126,56 +126,57 @@ export default function ReverseTable({
         ))}
       </div>
 
-      {/* Center Table */}
-      <div className="flex-1 relative flex items-center justify-center z-10 mt-10 sm:mt-0 pointer-events-none">
-        <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-full max-w-md pointer-events-auto">
-        {/* Draw Pile */}
-        <button 
-          onClick={() => isMyTurn && onDrawCard()}
-          disabled={!isMyTurn}
-          className={`absolute left-[15%] sm:left-[30%] -translate-x-1/2 transition-all ${isMyTurn ? 'hover:scale-105 hover:-translate-y-2 cursor-pointer shadow-emerald-500/50 drop-shadow-[0_0_15px_rgba(16,185,129,0.8)] animate-pulse' : 'opacity-80 grayscale-[0.5] cursor-not-allowed'}`}
-        >
-          <ReverseCard hidden={true} />
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-white font-bold text-xs whitespace-nowrap bg-black/60 px-3 py-1 rounded-full backdrop-blur-sm border border-white/10 shadow-lg">
-            {deckCount} Cards
+      {/* Center Trick Area */}
+      <div className="flex-1 relative flex items-center justify-center z-10 mt-8 sm:mt-0 pointer-events-none">
+        <div className="relative w-56 h-56 sm:w-72 sm:h-72 rounded-full border-4 border-white/10 flex items-center justify-center bg-black/20 shadow-inner pointer-events-auto">
+          
+          {/* Draw Pile (Left Side) */}
+          <button 
+            onClick={() => isMyTurn && onDrawCard()}
+            disabled={!isMyTurn}
+            className={`absolute left-4 sm:left-8 transition-all duration-300 z-10 ${isMyTurn ? 'hover:scale-105 hover:-translate-y-2 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.6)] animate-pulse' : 'opacity-80 grayscale-[0.3] cursor-not-allowed'}`}
+          >
+            <ReverseCard hidden={true} />
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-white font-bold text-[10px] sm:text-xs whitespace-nowrap bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm border border-white/10 shadow-lg">
+              {deckCount} Cards
+            </div>
+            {isMyTurn && (
+               <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-emerald-400 font-black italic text-[10px] sm:text-xs whitespace-nowrap drop-shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse">
+                  DRAW
+               </div>
+            )}
+          </button>
+
+          {/* Discard Pile (Right Side) */}
+          <div className="absolute right-4 sm:right-8 pointer-events-auto">
+            {topCard ? <ReverseCard card={topCard} /> : <div className="w-16 h-24 sm:w-24 sm:h-36 border-[4px] border-dashed border-white/20 rounded-xl bg-black/10"></div>}
           </div>
-          {isMyTurn && (
-             <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-emerald-400 font-black italic text-sm whitespace-nowrap drop-shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse">
-                DRAW
+          
+          {/* Game Info Status */}
+          <div className="absolute top-[-25%] sm:top-[-20%] left-1/2 -translate-x-1/2 flex flex-col items-center">
+              {/* Direction Arrow */}
+              <div className={`text-4xl sm:text-5xl text-white/50 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
+                ↻
+              </div>
+              {/* Active Color Info (important when wild is played) */}
+              {activeColor && (
+                <div className="mt-2 flex items-center gap-2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                   <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-inner border border-white/30 
+                      ${activeColor === 'RED' ? 'bg-red-500' : activeColor === 'BLUE' ? 'bg-blue-500' : activeColor === 'GREEN' ? 'bg-green-500' : 'bg-yellow-400'}`}>
+                   </div>
+                   <span className="text-white text-[10px] sm:text-xs font-bold tracking-wider">{activeColor}</span>
+                </div>
+              )}
+          </div>
+
+          {/* Recent Action Log */}
+          {actionLog && actionLog.length > 0 && (
+             <div className="absolute -bottom-16 sm:-bottom-12 left-1/2 -translate-x-1/2 text-center w-max max-w-sm px-4 pointer-events-none">
+                <span className="bg-black/60 backdrop-blur-md text-slate-200 text-xs sm:text-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] inline-block">
+                   {actionLog[actionLog.length - 1]}
+                </span>
              </div>
           )}
-        </button>
-
-        {/* Discard Pile */}
-        <div className="absolute left-[55%] sm:left-[55%] pointer-events-auto">
-          {topCard ? <ReverseCard card={topCard} /> : <div className="w-16 h-24 sm:w-24 sm:h-36 border-[4px] border-dashed border-white/20 rounded-xl bg-black/10"></div>}
-        </div>
-        
-        {/* Game Info Status */}
-        <div className="absolute top-[-10%] sm:top-[-15%] left-1/2 -translate-x-1/2 flex flex-col items-center">
-            {/* Direction Arrow */}
-            <div className={`text-4xl text-white/50 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
-              ↻
-            </div>
-            {/* Active Color Info (important when wild is played) */}
-            {activeColor && (
-              <div className="mt-2 flex items-center gap-2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-                 <div className={`w-4 h-4 rounded-full shadow-inner border border-white/30 
-                    ${activeColor === 'RED' ? 'bg-red-500' : activeColor === 'BLUE' ? 'bg-blue-500' : activeColor === 'GREEN' ? 'bg-green-500' : 'bg-yellow-400'}`}>
-                 </div>
-                 <span className="text-white text-xs font-bold tracking-wider">{activeColor}</span>
-              </div>
-            )}
-        </div>
-        
-        {/* Recent Action Log */}
-        {actionLog && actionLog.length > 0 && (
-           <div className="absolute -bottom-24 sm:-bottom-32 left-1/2 -translate-x-1/2 text-center w-[150%] max-w-lg px-4 pointer-events-none">
-              <span className="bg-black/60 backdrop-blur-md text-slate-200 text-xs sm:text-sm px-6 py-2 rounded-full border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] inline-block">
-                 {actionLog[actionLog.length - 1]}
-              </span>
-           </div>
-        )}
         </div>
       </div>
 
@@ -183,7 +184,7 @@ export default function ReverseTable({
       <div className="relative w-full pb-6 pt-12 sm:pb-8 flex flex-col items-center z-20">
         
         {/* UNO Button */}
-        <div className="absolute -top-4 right-4 sm:right-10 z-30">
+        <div className="absolute -top-8 sm:-top-4 right-2 sm:right-10 z-30">
           <button 
             onClick={onCallUno}
             disabled={myHand.length > 2}
@@ -195,7 +196,7 @@ export default function ReverseTable({
           </button>
         </div>
 
-        <div className="flex -space-x-8 sm:-space-x-10 hover:-space-x-4 sm:hover:-space-x-6 transition-all duration-300 px-4 max-w-full overflow-x-auto pb-4 pt-8 custom-scrollbar justify-center">
+        <div className="flex -space-x-8 sm:-space-x-10 hover:-space-x-2 sm:hover:-space-x-4 transition-all duration-300 px-4 max-w-full overflow-x-auto pb-4 pt-4 sm:pt-8 custom-scrollbar justify-center">
           {myHand.map((card) => {
             const isValid = isCardValid(card);
             return (
