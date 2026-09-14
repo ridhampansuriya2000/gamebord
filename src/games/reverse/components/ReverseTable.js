@@ -29,21 +29,45 @@ export default function ReverseTable({ gameState, mySeat, onPlayCard, onDrawCard
     return false;
   };
 
-  const getPosClass = (idx, totalOpponents) => {
-    // Distribute opponents around top and sides based on totalOpponents
-    // For simplicity, just render them in a flex row at the top for now, or grid
-    return '';
+  const getPlayerPosition = (index, totalOpponents) => {
+    if (totalOpponents === 0) return {};
+    
+    let angle;
+    if (totalOpponents === 1) {
+       angle = Math.PI / 2; // 90 degrees (Top Center)
+    } else {
+       // Distribute from 170 degrees (Left) to 10 degrees (Right)
+       const startAngle = Math.PI - 0.15; // slightly less than 180
+       const endAngle = 0.15; // slightly more than 0
+       angle = startAngle - (index / (totalOpponents - 1)) * (startAngle - endAngle);
+    }
+
+    // Elliptical distribution
+    // Radius X: 42% (to keep them inside bounds)
+    // Radius Y: 38%
+    // Center offset: Y is around 45% down the screen
+    const x = 50 + Math.cos(angle) * 40;
+    const y = 45 - Math.sin(angle) * 35;
+
+    return {
+      left: `${x}%`,
+      top: `${y}%`,
+      transform: 'translate(-50%, -50%)',
+      position: 'absolute'
+    };
   };
 
-  const renderPlayerBadge = (seatIndex) => {
+  const renderPlayerBadge = (seatIndex, index, totalOpponents) => {
     const isMe = seatIndex === mySeat;
     const isTurn = currentTurn === seatIndex;
     const cardCount = isMe ? myHand.length : hands[seatIndex];
     const isUno = cardCount === 1;
-    const hasCalledUno = unoCallers.includes(seatIndex);
+    const hasCalledUno = Array.isArray(unoCallers) && unoCallers.includes(seatIndex);
+
+    const posStyle = getPlayerPosition(index, totalOpponents);
 
     return (
-      <div key={seatIndex} className={`flex flex-col items-center transition-all ${isTurn ? 'scale-110' : 'opacity-80'}`}>
+      <div key={seatIndex} style={posStyle} className={`flex flex-col items-center transition-all duration-500 z-20 ${isTurn ? 'scale-125' : 'opacity-90'}`}>
         <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 flex flex-col items-center justify-center font-bold text-sm sm:text-lg shadow-lg
           ${isTurn ? 'border-emerald-400 bg-emerald-900/80 animate-pulse ring-4 ring-emerald-500/30' : 'border-white/20 bg-slate-800'}
         `}>
@@ -74,19 +98,27 @@ export default function ReverseTable({ gameState, mySeat, onPlayCard, onDrawCard
   };
 
   return (
-    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/60 sm:rounded-[3rem] border-0 sm:border-8 border-green-950/80 shadow-2xl relative overflow-hidden flex flex-col">
-      {/* Felt Texture */}
-      <div className="absolute inset-0 opacity-30 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
+    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/90 sm:rounded-[4rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6),inset_0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col font-sans">
+      {/* Premium Felt Texture & Lighting */}
+      <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none"></div>
+      {/* Center Table Glow */}
+      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 sm:w-96 sm:h-96 bg-green-400/10 blur-[100px] rounded-full pointer-events-none"></div>
 
       {isChoosingColor && <ColorPicker onSelect={onChooseColor} />}
 
-      {/* Opponents Area (Top / Sides) */}
-      <div className="relative w-full p-4 pt-12 sm:p-8 flex justify-center gap-4 sm:gap-8 flex-wrap z-10">
-        {oppSeats.map(seat => renderPlayerBadge(seat))}
+      {/* Opponents Area (Dynamically placed via absolute positioning) */}
+      <div className="absolute inset-0 pointer-events-none z-10">
+        {oppSeats.map((seat, idx) => (
+          <div key={seat} className="pointer-events-auto">
+            {renderPlayerBadge(seat, idx, oppSeats.length)}
+          </div>
+        ))}
       </div>
 
       {/* Center Table */}
-      <div className="flex-1 relative flex items-center justify-center z-10 -mt-10 sm:mt-0">
+      <div className="flex-1 relative flex items-center justify-center z-10 mt-10 sm:mt-0 pointer-events-none">
+        <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-full max-w-md pointer-events-auto">
         {/* Draw Pile */}
         <button 
           onClick={() => isMyTurn && onDrawCard()}
@@ -94,23 +126,23 @@ export default function ReverseTable({ gameState, mySeat, onPlayCard, onDrawCard
           className={`absolute left-[15%] sm:left-[30%] -translate-x-1/2 transition-all ${isMyTurn ? 'hover:scale-105 hover:-translate-y-2 cursor-pointer shadow-emerald-500/50 drop-shadow-[0_0_15px_rgba(16,185,129,0.8)] animate-pulse' : 'opacity-80 grayscale-[0.5] cursor-not-allowed'}`}
         >
           <ReverseCard hidden={true} />
-          <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-white font-bold text-xs whitespace-nowrap bg-black/50 px-2 rounded-full backdrop-blur-sm">
+          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-white font-bold text-xs whitespace-nowrap bg-black/60 px-3 py-1 rounded-full backdrop-blur-sm border border-white/10 shadow-lg">
             {deckCount} Cards
           </div>
           {isMyTurn && (
-             <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-emerald-300 font-black italic text-sm whitespace-nowrap">
+             <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-emerald-400 font-black italic text-sm whitespace-nowrap drop-shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse">
                 DRAW
              </div>
           )}
         </button>
 
         {/* Discard Pile */}
-        <div className="absolute right-[15%] sm:right-[30%] translate-x-1/2">
-          {topCard ? <ReverseCard card={topCard} /> : <div className="w-16 h-24 sm:w-24 sm:h-36 border-4 border-dashed border-white/20 rounded-xl"></div>}
+        <div className="absolute left-[55%] sm:left-[55%] pointer-events-auto">
+          {topCard ? <ReverseCard card={topCard} /> : <div className="w-16 h-24 sm:w-24 sm:h-36 border-[4px] border-dashed border-white/20 rounded-xl bg-black/10"></div>}
         </div>
         
         {/* Game Info Status */}
-        <div className="absolute top-0 sm:top-1/4 left-1/2 -translate-x-1/2 flex flex-col items-center">
+        <div className="absolute top-[-10%] sm:top-[-15%] left-1/2 -translate-x-1/2 flex flex-col items-center">
             {/* Direction Arrow */}
             <div className={`text-4xl text-white/50 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
               ↻
@@ -128,12 +160,13 @@ export default function ReverseTable({ gameState, mySeat, onPlayCard, onDrawCard
         
         {/* Recent Action Log */}
         {actionLog && actionLog.length > 0 && (
-           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center w-full px-4 pointer-events-none">
-              <span className="bg-black/60 backdrop-blur-sm text-slate-200 text-xs sm:text-sm px-4 py-1.5 rounded-full border border-white/10 shadow-lg">
+           <div className="absolute -bottom-24 sm:-bottom-32 left-1/2 -translate-x-1/2 text-center w-[150%] max-w-lg px-4 pointer-events-none">
+              <span className="bg-black/60 backdrop-blur-md text-slate-200 text-xs sm:text-sm px-6 py-2 rounded-full border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] inline-block">
                  {actionLog[actionLog.length - 1]}
               </span>
            </div>
         )}
+        </div>
       </div>
 
       {/* User Hand */}

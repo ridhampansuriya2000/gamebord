@@ -7,6 +7,7 @@ import OnlineLobby from '../../shared/components/OnlineLobby';
 import GameHeader from '../../shared/components/GameHeader';
 import useOnlineReverse from '../../games/reverse/hooks/useOnlineReverse';
 import ReverseTable from '../../games/reverse/components/ReverseTable';
+import { useWebRTC } from '../../shared/hooks/useWebRTC';
 
 export default function ReversePage() {
   const [mode, setMode] = useState(null); // 'bots' | 'online'
@@ -39,6 +40,11 @@ export default function ReversePage() {
     mySeat
   } = useOnlineReverse();
 
+  const rtc = useWebRTC(
+    mode === 'online' ? socket : null,
+    mode === 'online' ? joinCode : null
+  );
+
   useEffect(() => {
     // Auto-start if we are in bot mode and waiting
     if (mode === 'bots' && status === 'waiting') {
@@ -47,6 +53,9 @@ export default function ReversePage() {
   }, [mode, status, startGame]);
 
   const handleBackToMode = () => {
+    if (mode === 'online') {
+      rtc.leaveVoiceChat();
+    }
     setMode(null);
     resetConnection();
   };
@@ -132,9 +141,29 @@ export default function ReversePage() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-green-950/20 to-slate-900 flex flex-col font-sans text-white">
-      <GameHeader title="Reverse Rush" />
+      {mode && (
+        <>
+          <div className="fixed top-2 sm:top-4 left-2 sm:left-4 z-50 flex items-center gap-2 sm:gap-4">
+            <button
+              onClick={handleBackToMode}
+              className="flex items-center justify-center gap-1 sm:gap-2 w-8 h-8 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 bg-slate-900/50 sm:bg-slate-900/90 hover:bg-slate-800 backdrop-blur-md text-slate-200 hover:text-white text-sm font-bold rounded-full sm:rounded-xl border border-white/10 shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+              title={mode === 'online' ? 'Leave Room' : 'Go Back'}
+            >
+              ← <span className="hidden sm:inline">{mode === 'online' ? 'Leave' : 'Back'}</span>
+            </button>
+          </div>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-4">
+          <GameHeader 
+            gameMode={mode === 'bots' ? 'local' : 'online'}
+            roomId={mode === 'online' ? joinCode : null}
+            playerSymbol="UNO"
+            status={status}
+            rtc={rtc}
+          />
+        </>
+      )}
+
+      <main className={`flex-1 flex flex-col items-center justify-center ${gameState ? '' : 'p-4'}`}>
         {!gameState && !mode && (
           <ModeSelection onLocal={() => setMode('bots')} onOnline={() => { setMode('online'); connect(); }} />
         )}
@@ -175,10 +204,10 @@ export default function ReversePage() {
              {players.length === (roomMaxPlayers || 2) ? (
                <button 
                  onClick={startGame}
-                 disabled={players[0] !== sessionStorage.getItem('reverse_player_id')}
+                 disabled={players[0] !== (typeof window !== 'undefined' ? sessionStorage.getItem('reverse_player_id') : '')}
                  className="w-full py-3 mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 rounded-xl font-bold transition-all disabled:opacity-50"
                >
-                 {players[0] === sessionStorage.getItem('reverse_player_id') ? 'Start Game' : 'Waiting for host to start...'}
+                 {players[0] === (typeof window !== 'undefined' ? sessionStorage.getItem('reverse_player_id') : '') ? 'Start Game' : 'Waiting for host to start...'}
                </button>
              ) : (
                <div className="flex items-center gap-2 mt-4 text-emerald-400">
