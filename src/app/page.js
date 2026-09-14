@@ -44,6 +44,16 @@ const games = [
     accent: 'yellow',
     available: true,
   },
+  {
+    id: 'reverse',
+    name: 'Reverse Rush',
+    subtitle: 'UNO-Style Card Game',
+    icon: '🔄',
+    description: 'The classic color and number matching card game! Play with up to 9 bots or 10 players online.',
+    color: 'from-green-500/10 to-emerald-500/10',
+    accent: 'green',
+    available: true,
+  }
 ];
 
 const accentMap = {
@@ -74,6 +84,13 @@ const accentMap = {
     badge: 'text-yellow-300 bg-yellow-500/10 border-yellow-500/20',
     arrow: 'group-hover:text-yellow-400',
     btn: 'bg-yellow-500/15 hover:bg-yellow-500/25 text-yellow-300 border-yellow-500/30',
+  },
+  green: {
+    border: 'hover:border-green-500/50',
+    glow: 'hover:shadow-[0_0_30px_rgba(34,197,94,0.12)]',
+    badge: 'text-green-300 bg-green-500/10 border-green-500/20',
+    arrow: 'group-hover:text-green-400',
+    btn: 'bg-green-500/15 hover:bg-green-500/25 text-green-300 border-green-500/30',
   },
 };
 
