@@ -10,6 +10,7 @@ export default function useOnlineReverse() {
   const [mySeat, setMySeat] = useState(null);
   const [joinCode, setJoinCode] = useState('');
   const [players, setPlayers] = useState([]);
+  const [playerNames, setPlayerNames] = useState({});
   const [maxPlayers, setMaxPlayers] = useState(4);
   
   const currentRoomId = useRef(null);
@@ -62,25 +63,28 @@ export default function useOnlineReverse() {
       setError(err.message || 'An error occurred');
     });
 
-    newSocket.on('room-created', ({ roomId, maxPlayers }) => {
+    newSocket.on('room-created', ({ roomId, maxPlayers, playerNames }) => {
       currentRoomId.current = roomId;
       setJoinCode(roomId);
       setStatus('waiting');
       setPlayers([getPlayerId()]);
       if (maxPlayers) setMaxPlayers(maxPlayers);
+      if (playerNames) setPlayerNames(playerNames);
     });
     
-    newSocket.on('player-joined', ({ roomId, players, maxPlayers }) => {
+    newSocket.on('player-joined', ({ roomId, players, maxPlayers, playerNames }) => {
       currentRoomId.current = roomId;
       setJoinCode(roomId);
       setStatus('waiting');
       setPlayers(players);
       if (maxPlayers) setMaxPlayers(maxPlayers);
+      if (playerNames) setPlayerNames(playerNames);
     });
 
-    newSocket.on('opponent-joined', ({ players, maxPlayers }) => {
+    newSocket.on('opponent-joined', ({ players, maxPlayers, playerNames }) => {
       setPlayers(players);
       if (maxPlayers) setMaxPlayers(maxPlayers);
+      if (playerNames) setPlayerNames(playerNames);
     });
 
     newSocket.on('reverse-game-state', (state) => {
@@ -104,6 +108,7 @@ export default function useOnlineReverse() {
     setGameState(null);
     setJoinCode('');
     setPlayers([]);
+    setPlayerNames({});
     currentRoomId.current = null;
     initSocket();
   };
@@ -117,14 +122,14 @@ export default function useOnlineReverse() {
     };
   }, []);
 
-  const createRoom = (config) => {
+  const createRoom = (config, playerName) => {
     const s = initSocket();
-    s.emit('create-room', { gameType: 'reverse', config });
+    s.emit('create-room', { gameType: 'reverse', config, playerName });
   };
   
-  const joinRoom = (code) => {
+  const joinRoom = (code, playerName) => {
     const s = initSocket();
-    s.emit('join-room', { roomId: code });
+    s.emit('join-room', { roomId: code, playerName });
   };
 
   const startGame = useCallback(() => {
@@ -165,6 +170,7 @@ export default function useOnlineReverse() {
     joinCode,
     setJoinCode,
     players,
+    playerNames,
     maxPlayers,
     createRoom,
     joinRoom,

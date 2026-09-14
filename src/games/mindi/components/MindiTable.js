@@ -3,7 +3,7 @@ import PlayingCard from './PlayingCard';
 import { getValidCards } from '../engine/trumpRules';
 import { soundEngine } from '../utils/sound';
 
-export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, onRevealTrump }) {
+export default function MindiTable({ gameState, mySeat, players = [], playerNames = {}, onPlayCard, onSetTrump, onRevealTrump }) {
   const [selectedCard, setSelectedCard] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const prevGameState = useRef(gameState);
@@ -83,15 +83,18 @@ export default function MindiTable({ gameState, mySeat, onPlayCard, onSetTrump, 
     if (position === 'left') posClass = 'left-4 top-1/2 -translate-y-1/2 flex-row';
     if (position === 'right') posClass = 'right-4 top-1/2 -translate-y-1/2 flex-row-reverse';
 
+    const oppId = players ? players[seatIndex] : null;
+    const oppName = (oppId && playerNames?.[oppId]) || `Player ${seatIndex + 1}`;
+
     return (
       <div className={`absolute ${posClass} flex items-center z-10 transition-all ${isTurn ? 'scale-110' : 'opacity-80'}`}>
         <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 flex items-center justify-center font-bold text-sm sm:text-lg shadow-lg
           ${isTurn ? 'border-cyan-400 bg-cyan-900/80 animate-pulse ring-4 ring-cyan-500/30' : 'border-white/20 bg-slate-800'}
         `}>
-          P{seatIndex + 1}
+          {oppName.substring(0, 2).toUpperCase()}
         </div>
         <div className={`flex flex-col ${position === 'bottom' ? 'items-center mt-2' : ''} ${position === 'top' ? 'items-center mb-2' : ''} ${position === 'left' ? 'items-start ml-2' : ''} ${position === 'right' ? 'items-end mr-2' : ''}`}>
-           <span className="text-white font-semibold whitespace-nowrap text-xs sm:text-base">{isMe ? 'YOU' : `Player ${seatIndex + 1}`}</span>
+           <span className="text-white font-semibold whitespace-nowrap text-xs sm:text-base">{isMe ? 'YOU' : oppName}</span>
            <span className={`text-[10px] sm:text-xs font-bold ${team === 'Team A' ? 'text-blue-400' : 'text-rose-400'}`}>{team}</span>
            {status === 'selecting_trump' && isTurn && !isMe && (
              <span className="mt-1 text-[9px] sm:text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full animate-pulse whitespace-nowrap">

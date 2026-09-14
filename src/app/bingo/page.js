@@ -69,9 +69,12 @@ export default function BingoHome() {
     if (gameMode === 'local') {
       isMyTurn = activeGame.isHumanTurn;
       turnMessage = isMyTurn ? 'Your Turn' : "Bot's Turn";
-    } else {
+      const isX = activeGame.playerSymbol === 'X';
+      const myId = sessionStorage.getItem('gamebord_player_id');
+      const oppId = Object.keys(activeGame.playerNames || {}).find(id => id !== myId);
+      const oppName = (oppId && activeGame.playerNames?.[oppId]) || "Opponent";
       isMyTurn = activeGame.currentTurn === activeGame.playerSymbol;
-      turnMessage = isMyTurn ? 'Your Turn' : "Opponent's Turn";
+      turnMessage = isMyTurn ? 'Your Turn' : `${oppName}'s Turn`;
     }
   }
 
@@ -228,7 +231,7 @@ export default function BingoHome() {
             error={onlineGame.error}
             joinCode={joinCode}
             setJoinCode={setJoinCode}
-            onCreateRoom={onlineGame.createRoom}
+            onCreateRoom={(playerName) => onlineGame.createRoom(playerName)}
             onJoinRoom={onlineGame.joinRoom}
             onConnectRetry={onlineGame.connect}
             onBack={() => setGameMode(null)}
@@ -341,7 +344,11 @@ export default function BingoHome() {
                       {/* 1. Opponent Board */}
                       <div className="flex flex-col items-center gap-2">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
-                          {gameMode === 'local' ? "Bot's Board" : "Opponent's Board"}
+                          {gameMode === 'local' ? "Bot's Board" : (() => {
+                            const myId = sessionStorage.getItem('gamebord_player_id');
+                            const oppId = Object.keys(onlineGame.playerNames || {}).find(id => id !== myId);
+                            return (oppId && onlineGame.playerNames?.[oppId]) ? `${onlineGame.playerNames[oppId]}'s Board` : "Opponent's Board";
+                          })()}
                         </span>
                         <BingoBoard 
                           board={gameMode === 'local' ? activeGame.botBoard : activeGame.opponentBoard} 

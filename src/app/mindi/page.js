@@ -33,7 +33,7 @@ export default function MindiPage() {
   const handleLeaveOrBack = () => {
     if (gameMode === 'online') {
       onlineGame.leaveRoom();
-      rtc.leaveVoiceChat();
+      rtc.stopVoiceChat?.();
     }
     setGameMode(null);
     setJoinCode('');
@@ -119,7 +119,7 @@ export default function MindiPage() {
             error={onlineGame.error}
             joinCode={joinCode}
             setJoinCode={setJoinCode}
-            onCreateRoom={() => onlineGame.createRoom({ mode: mindiConfig })}
+            onCreateRoom={(playerName) => onlineGame.createRoom({ mode: mindiConfig }, playerName)}
             onJoinRoom={onlineGame.joinRoom}
             onConnectRetry={onlineGame.connect}
             onBack={() => setGameMode(null)}
@@ -154,7 +154,7 @@ export default function MindiPage() {
                      {i < onlineGame.players.length ? '✓' : '?'}
                    </div>
                    <span className={i < onlineGame.players.length ? 'text-white font-medium' : 'text-slate-500'}>
-                     {i < onlineGame.players.length ? (i === 0 ? 'Host (Creator)' : `Player ${i+1}`) : 'Waiting...'}
+                     {i < onlineGame.players.length ? (onlineGame.playerNames?.[onlineGame.players[i]] || (i === 0 ? 'Host (Creator)' : `Player ${i+1}`)) : 'Waiting...'}
                    </span>
                  </div>
                ))}
@@ -191,6 +191,8 @@ export default function MindiPage() {
             <MindiTable 
               gameState={activeGame.gameState}
               mySeat={gameMode === 'online' ? onlineGame.mySeat : 0}
+              players={gameMode === 'online' ? onlineGame.players : null}
+              playerNames={gameMode === 'online' ? onlineGame.playerNames : null}
               onPlayCard={activeGame.playCard}
               onSetTrump={activeGame.setTrump}
               onRevealTrump={activeGame.revealTrump}

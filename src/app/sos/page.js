@@ -68,7 +68,7 @@ export default function SOSPage() {
   const handleLeaveOrBack = () => {
     if (gameMode === 'online') {
       onlineGame.leaveRoom();
-      rtc.leaveVoiceChat();
+      rtc.stopVoiceChat?.();
     } else {
       localGame.resetGame();
     }
@@ -181,7 +181,7 @@ export default function SOSPage() {
             error={onlineGame.error}
             joinCode={joinCode}
             setJoinCode={setJoinCode}
-            onCreateRoom={onlineGame.createRoom}
+            onCreateRoom={(playerName) => onlineGame.createRoom(playerName)}
             onJoinRoom={onlineGame.joinRoom}
             onConnectRetry={onlineGame.connect}
             onBack={() => setGameMode(null)}
@@ -210,12 +210,19 @@ export default function SOSPage() {
                   {/* Scoreboard */}
                   <div className="flex items-center gap-6 bg-slate-800/40 px-4 py-2 rounded-xl border border-white/5 shadow-xl">
                      <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-0.5">You</span>
+                        <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-0.5">
+                           {gameMode === 'local' ? 'You' : (onlineGame.playerNames?.[sessionStorage.getItem('gamebord_player_id')] || 'You')}
+                        </span>
                         <span className="text-2xl font-black text-white">{gameMode === 'local' ? localGame.scores.human : onlineGame.scores[onlineGame.playerSymbol]}</span>
                      </div>
                      <div className="w-px h-8 bg-white/10"></div>
                      <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-0.5">{gameMode === 'local' ? 'Bot' : 'Opponent'}</span>
+                        <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-0.5">
+                           {gameMode === 'local' ? 'Bot' : (() => {
+                              const opponentId = Object.keys(onlineGame.playerNames || {}).find(id => id !== sessionStorage.getItem('gamebord_player_id'));
+                              return opponentId && onlineGame.playerNames[opponentId] ? onlineGame.playerNames[opponentId] : 'Opponent';
+                           })()}
+                        </span>
                         <span className="text-2xl font-black text-white">{gameMode === 'local' ? localGame.scores.bot : onlineGame.scores[onlineGame.playerSymbol === 'X' ? 'O' : 'X']}</span>
                      </div>
                   </div>

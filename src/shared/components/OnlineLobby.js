@@ -11,6 +11,23 @@ export default function OnlineLobby({
   onBack,
   renderCreateOptions
 }) {
+  const [playerName, setPlayerName] = React.useState('');
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedName = sessionStorage.getItem('player_name') || '';
+      setPlayerName(storedName);
+    }
+  }, []);
+
+  const handleNameChange = (e) => {
+    const val = e.target.value;
+    setPlayerName(val);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('player_name', val);
+    }
+  };
+
   const isConnecting = status === 'idle' || status === 'connecting';
   const isDisconnected = status === 'disconnected';
 
@@ -42,9 +59,21 @@ export default function OnlineLobby({
         </div>
       ) : !isDisconnected ? (
         <div className="flex flex-col w-full gap-4">
+          <div className="flex flex-col gap-2 mb-2">
+            <label className="text-sm font-semibold text-slate-300">Your Nickname (Optional)</label>
+            <input
+              type="text"
+              placeholder="e.g. John Doe"
+              value={playerName}
+              onChange={handleNameChange}
+              maxLength={12}
+              className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 transition-colors"
+            />
+          </div>
+
           {renderCreateOptions && renderCreateOptions()}
           <button
-            onClick={onCreateRoom}
+            onClick={() => onCreateRoom(playerName)}
             className="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 rounded-xl transition-all font-bold shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:shadow-[0_0_25px_rgba(16,185,129,0.6)]"
           >
             Create New Room
@@ -66,7 +95,7 @@ export default function OnlineLobby({
               maxLength={6}
             />
             <button
-              onClick={() => onJoinRoom(joinCode)}
+              onClick={() => onJoinRoom(joinCode, playerName)}
               disabled={!joinCode || joinCode.length < 6}
               className="w-full py-3 px-6 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-md rounded-xl border border-white/20 transition-all font-semibold shadow-lg active:scale-95 text-lg"
             >

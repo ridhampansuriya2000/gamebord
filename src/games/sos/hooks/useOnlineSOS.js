@@ -24,6 +24,7 @@ export const useOnlineSOS = () => {
   const [scores, setScores] = useState({ X: 0, O: 0 });
   const [currentTurn, setCurrentTurn] = useState(null);
   const [winner, setWinner] = useState(null);
+  const [playerNames, setPlayerNames] = useState({});
   
   const [status, setStatus] = useState('idle'); // idle, waiting, playing, finished
   const [error, setError] = useState(null);
@@ -64,27 +65,30 @@ export const useOnlineSOS = () => {
       setStatus('disconnected');
     });
 
-    socket.on('room-created', ({ roomId }) => {
+    socket.on('room-created', ({ roomId, playerNames }) => {
       setRoomId(roomId);
       setStatus('waiting');
       setError(null);
       setPlayerSymbol('X'); // Creator is X
       setOpponentJoined(false);
       setOpponentLeft(false);
+      if (playerNames) setPlayerNames(playerNames);
     });
 
-    socket.on('player-joined', ({ roomId, player }) => {
+    socket.on('player-joined', ({ roomId, player, playerNames }) => {
       setRoomId(roomId);
       setStatus('waiting');
       setError(null);
       setPlayerSymbol(player); // Joiner gets symbol from payload
       setOpponentJoined(true);
       setOpponentLeft(false);
+      if (playerNames) setPlayerNames(playerNames);
     });
 
-    socket.on('opponent-joined', () => {
+    socket.on('opponent-joined', ({ playerNames }) => {
       setOpponentJoined(true);
       setOpponentLeft(false);
+      if (playerNames) setPlayerNames(playerNames);
     });
 
     socket.on('opponent-left', () => {
@@ -136,12 +140,12 @@ export const useOnlineSOS = () => {
     });
   };
 
-  const createRoom = () => {
-    if (socket) socket.emit('create-room', { gameType: 'sos' });
+  const createRoom = (playerName) => {
+    if (socket) socket.emit('create-room', { gameType: 'sos', playerName });
   };
 
-  const joinRoom = (id) => {
-    if (socket) socket.emit('join-room', { roomId: id });
+  const joinRoom = (id, playerName) => {
+    if (socket) socket.emit('join-room', { roomId: id, playerName });
   };
 
   const startGame = () => {
@@ -187,6 +191,7 @@ export const useOnlineSOS = () => {
     setScores({ X: 0, O: 0 });
     setCurrentTurn(null);
     setWinner(null);
+    setPlayerNames({});
     setOpponentJoined(false);
     setOpponentLeft(false);
     setOpponentRequestedRestart(false);
@@ -212,6 +217,7 @@ export const useOnlineSOS = () => {
     winner,
     status,
     error,
+    playerNames,
     opponentJoined,
     opponentLeft,
     opponentRequestedRestart,

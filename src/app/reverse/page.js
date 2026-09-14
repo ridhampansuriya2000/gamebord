@@ -27,6 +27,7 @@ export default function ReversePage() {
     joinCode,
     setJoinCode,
     players,
+    playerNames,
     maxPlayers: roomMaxPlayers,
     createRoom,
     joinRoom,
@@ -55,7 +56,7 @@ export default function ReversePage() {
 
   const handleBackToMode = () => {
     if (mode === 'online') {
-      rtc.leaveVoiceChat();
+      rtc.stopVoiceChat?.();
     }
     setMode(null);
     resetConnection();
@@ -177,7 +178,7 @@ export default function ReversePage() {
             error={error}
             joinCode={joinCode}
             setJoinCode={setJoinCode}
-            onCreateRoom={() => createRoom({ maxPlayers })}
+            onCreateRoom={(playerName) => createRoom({ maxPlayers }, playerName)}
             onJoinRoom={joinRoom}
             onConnectRetry={resetConnection}
             onBack={handleBackToMode}
@@ -196,7 +197,7 @@ export default function ReversePage() {
                      {i < players.length ? '✓' : '?'}
                    </div>
                    <span className={i < players.length ? 'text-white font-medium' : 'text-slate-500'}>
-                     {i < players.length ? (i === 0 ? 'Host (Creator)' : `Player ${i+1}`) : 'Waiting...'}
+                     {i < players.length ? (playerNames?.[players[i]] || (i === 0 ? 'Host (Creator)' : `Player ${i+1}`)) : 'Waiting...'}
                    </span>
                  </div>
                ))}
@@ -222,7 +223,9 @@ export default function ReversePage() {
         {gameState && (
           <ReverseTable 
             gameState={gameState} 
-            mySeat={mySeat} 
+            mySeat={mySeat}
+            players={players}
+            playerNames={playerNames}
             onPlayCard={playCard}
             onDrawCard={drawCard}
             onChooseColor={chooseColor}

@@ -2,7 +2,17 @@ import React, { useState, useEffect } from 'react';
 import ReverseCard from './ReverseCard';
 import ColorPicker from './ColorPicker';
 
-export default function ReverseTable({ gameState, mySeat, onPlayCard, onDrawCard, onChooseColor, onCallUno, onChallengeUno }) {
+export default function ReverseTable({ 
+  gameState, 
+  mySeat, 
+  players = [],
+  playerNames = {},
+  onPlayCard, 
+  onDrawCard, 
+  onChooseColor, 
+  onCallUno, 
+  onChallengeUno 
+}) {
   const [selectedCard, setSelectedCard] = useState(null);
 
   if (!gameState) return null;
@@ -65,24 +75,24 @@ export default function ReverseTable({ gameState, mySeat, onPlayCard, onDrawCard
     const hasCalledUno = Array.isArray(unoCallers) && unoCallers.includes(seatIndex);
 
     const posStyle = getPlayerPosition(index, totalOpponents);
+    const oppId = players[seatIndex];
+    const oppName = (oppId && playerNames?.[oppId]) || `Player ${seatIndex + 1}`;
 
     return (
       <div key={seatIndex} style={posStyle} className={`flex flex-col items-center transition-all duration-500 z-20 ${isTurn ? 'scale-125' : 'opacity-90'}`}>
         <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 flex flex-col items-center justify-center font-bold text-sm sm:text-lg shadow-lg
           ${isTurn ? 'border-emerald-400 bg-emerald-900/80 animate-pulse ring-4 ring-emerald-500/30' : 'border-white/20 bg-slate-800'}
         `}>
-          <span className="text-white text-xs">{isMe ? 'YOU' : `P${seatIndex + 1}`}</span>
-          {isUno && hasCalledUno && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-black italic px-1 rounded transform rotate-12 shadow">UNO!</span>
+          {oppName.substring(0, 2).toUpperCase()}
+          {hasCalledUno && (
+            <div className="absolute -top-3 -right-3 bg-red-500 text-white text-[10px] sm:text-xs font-black px-1.5 py-0.5 rounded-full border-2 border-white shadow-lg rotate-12">
+              UNO!
+            </div>
           )}
         </div>
-        
-        {!isMe && (
-          <div className="flex items-center gap-1 mt-2 bg-slate-900/80 px-2 py-0.5 rounded-full border border-white/10">
-            <div className="w-3 h-4 bg-slate-200 rounded-sm border border-slate-400"></div>
-            <span className="text-xs font-bold">{cardCount}</span>
-          </div>
-        )}
+        <span className="mt-2 text-xs sm:text-sm font-bold bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm text-slate-200 shadow-md">
+          {oppName} ({cardCount})
+        </span>
 
         {/* Challenge UNO button if they have 1 card but haven't called it */}
         {!isMe && isUno && !hasCalledUno && (

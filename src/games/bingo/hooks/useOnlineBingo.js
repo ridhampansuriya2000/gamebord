@@ -24,6 +24,7 @@ export const useOnlineBingo = () => {
 
   const [humanBoard, setHumanBoard] = useState(null);
   const [opponentBoard, setOpponentBoard] = useState(null);
+  const [playerNames, setPlayerNames] = useState({});
   const [calledNumbers, setCalledNumbers] = useState([]);
   const [currentTurn, setCurrentTurn] = useState('X');
   const [opponentJoined, setOpponentJoined] = useState(false); // opponent in room but board not ready
@@ -83,27 +84,30 @@ export const useOnlineBingo = () => {
     });
 
     // Room creator: their room was made
-    newSocket.on('room-created', ({ roomId, player }) => {
+    newSocket.on('room-created', ({ roomId, player, playerNames }) => {
       setRoom(roomId);
       setSymbol(player);
       setStatus('waiting'); // waiting for opponent
       setOpponentJoined(false);
       setOpponentLeft(false);
+      if (playerNames) setPlayerNames(playerNames);
     });
 
     // Joiner: they successfully joined
-    newSocket.on('player-joined', ({ roomId, player }) => {
+    newSocket.on('player-joined', ({ roomId, player, playerNames }) => {
       setRoom(roomId);
       setSymbol(player);
       setStatus('setup'); // immediately go to board setup
       setOpponentJoined(true); // creator is already here
       setOpponentLeft(false);
+      if (playerNames) setPlayerNames(playerNames);
     });
 
     // Creator: opponent just joined — go to setup
-    newSocket.on('opponent-joined', () => {
+    newSocket.on('opponent-joined', ({ playerNames }) => {
       setStatus('setup');
       setOpponentJoined(true);
+      if (playerNames) setPlayerNames(playerNames);
     });
 
     // Opponent finished setting up their board
@@ -144,6 +148,7 @@ export const useOnlineBingo = () => {
       setCalledNumbers([]);
       setCurrentTurn('X');
       setWinner(null);
+      setPlayerNames({});
       setOpponentReady(false);
       setOpponentLeft(false);
       setOpponentRequestedRestart(false);
@@ -191,14 +196,14 @@ export const useOnlineBingo = () => {
     connect();
   }, [connect]);
 
-  const createRoom = () => {
+  const createRoom = (playerName) => {
     if (!socket) return;
-    socket.emit('create-room', { gameType: 'bingo' });
+    socket.emit('create-room', { gameType: 'bingo', playerName });
   };
 
-  const joinRoom = (id) => {
+  const joinRoom = (id, playerName) => {
     if (!socket) return;
-    socket.emit('join-room', { roomId: id });
+    socket.emit('join-room', { roomId: id, playerName });
   };
 
   const submitBoard = (board) => {
@@ -240,6 +245,7 @@ export const useOnlineBingo = () => {
     setCurrentTurn('X');
     setWinner(null);
     setStatus('connected');
+    setPlayerNames({});
     setOpponentReady(false);
     setOpponentJoined(false);
     setOpponentLeft(false);
@@ -259,6 +265,7 @@ export const useOnlineBingo = () => {
     winner,
     status,
     error,
+    playerNames,
     opponentReady,
     opponentJoined,
     opponentLeft,
