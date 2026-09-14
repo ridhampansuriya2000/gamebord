@@ -25,7 +25,7 @@ export default function ReversePage() {
     joinCode,
     setJoinCode,
     players,
-    maxPlayers,
+    maxPlayers: roomMaxPlayers,
     createRoom,
     joinRoom,
     startGame,
@@ -158,9 +158,9 @@ export default function ReversePage() {
         {/* Online Waiting Lobby */}
         {mode === 'online' && status === 'waiting' && (
           <div className="flex flex-col items-center gap-4 py-12 w-full max-w-md animate-in slide-in-from-bottom-4 duration-500">
-             <div className="text-xl font-semibold mb-2">Players Joined: {players.length} / {maxPlayers || 2}</div>
+             <div className="text-xl font-semibold mb-2">Players Joined: {players.length} / {roomMaxPlayers || 2}</div>
              <div className="w-full bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-2">
-               {Array.from({ length: maxPlayers || 2 }).map((_, i) => (
+               {Array.from({ length: roomMaxPlayers || 2 }).map((_, i) => (
                  <div key={i} className="flex items-center gap-3 bg-black/20 p-2 rounded-lg">
                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${i < players.length ? 'bg-emerald-500 text-emerald-950' : 'bg-slate-700 text-slate-500'}`}>
                      {i < players.length ? '✓' : '?'}
@@ -172,7 +172,7 @@ export default function ReversePage() {
                ))}
              </div>
              
-             {players.length === (maxPlayers || 2) ? (
+             {players.length === (roomMaxPlayers || 2) ? (
                <button 
                  onClick={startGame}
                  disabled={players[0] !== sessionStorage.getItem('reverse_player_id')}
