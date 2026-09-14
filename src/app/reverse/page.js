@@ -20,6 +20,7 @@ export default function ReversePage() {
   const [maxPlayers, setMaxPlayers] = useState(4);
 
   const {
+    socket,
     gameState,
     status,
     error,
