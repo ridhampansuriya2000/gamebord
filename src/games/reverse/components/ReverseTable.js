@@ -128,13 +128,13 @@ export default function ReverseTable({
 
       {/* Center Trick Area */}
       <div className="flex-1 relative flex items-center justify-center z-10 mt-8 sm:mt-0 pointer-events-none">
-        <div className="relative w-56 h-56 sm:w-72 sm:h-72 rounded-full border-4 border-white/10 flex items-center justify-center bg-black/20 shadow-inner pointer-events-auto">
-          
-          {/* Draw Pile (Left Side) */}
+        
+        {/* Draw Pile (Left of the circle) */}
+        <div className="absolute left-[5%] sm:left-[15%] flex items-center justify-center z-20 pointer-events-auto">
           <button 
             onClick={() => isMyTurn && onDrawCard()}
             disabled={!isMyTurn}
-            className={`absolute left-4 sm:left-8 transition-all duration-300 z-10 ${isMyTurn ? 'hover:scale-105 hover:-translate-y-2 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.6)] animate-pulse' : 'opacity-80 grayscale-[0.3] cursor-not-allowed'}`}
+            className={`relative transition-all duration-300 ${isMyTurn ? 'hover:scale-105 hover:-translate-y-2 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.6)] animate-pulse' : 'opacity-80 grayscale-[0.3] cursor-not-allowed'}`}
           >
             <ReverseCard hidden={true} />
             <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-white font-bold text-[10px] sm:text-xs whitespace-nowrap bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm border border-white/10 shadow-lg">
@@ -146,19 +146,22 @@ export default function ReverseTable({
                </div>
             )}
           </button>
+        </div>
 
-          {/* Discard Pile (Right Side) */}
-          <div className="absolute right-4 sm:right-8 pointer-events-auto">
+        <div className="relative w-40 h-40 sm:w-64 sm:h-64 rounded-full border border-white/10 flex items-center justify-center bg-black/10 mt-8 sm:mt-0 pointer-events-auto shadow-inner">
+
+          {/* Discard Pile (Dead Center) */}
+          <div className="absolute z-10">
             {topCard ? <ReverseCard card={topCard} /> : <div className="w-16 h-24 sm:w-24 sm:h-36 border-[4px] border-dashed border-white/20 rounded-xl bg-black/10"></div>}
           </div>
           
           {/* Game Info Status */}
-          <div className="absolute top-[-25%] sm:top-[-20%] left-1/2 -translate-x-1/2 flex flex-col items-center">
+          <div className="absolute top-[-20%] sm:top-[-15%] left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
               {/* Direction Arrow */}
               <div className={`text-4xl sm:text-5xl text-white/50 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
                 ↻
               </div>
-              {/* Active Color Info (important when wild is played) */}
+              {/* Active Color Info */}
               {activeColor && (
                 <div className="mt-2 flex items-center gap-2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
                    <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-inner border border-white/30 
@@ -168,16 +171,16 @@ export default function ReverseTable({
                 </div>
               )}
           </div>
-
-          {/* Recent Action Log */}
-          {actionLog && actionLog.length > 0 && (
-             <div className="absolute -bottom-16 sm:-bottom-12 left-1/2 -translate-x-1/2 text-center w-max max-w-sm px-4 pointer-events-none">
-                <span className="bg-black/60 backdrop-blur-md text-slate-200 text-xs sm:text-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] inline-block">
-                   {actionLog[actionLog.length - 1]}
-                </span>
-             </div>
-          )}
         </div>
+
+        {/* Recent Action Log */}
+        {actionLog && actionLog.length > 0 && (
+           <div className="absolute bottom-[5%] sm:bottom-[10%] left-1/2 -translate-x-1/2 text-center w-max max-w-sm px-4 pointer-events-none z-30">
+              <span className="bg-black/60 backdrop-blur-md text-slate-200 text-xs sm:text-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] inline-block">
+                 {actionLog[actionLog.length - 1]}
+              </span>
+           </div>
+        )}
       </div>
 
       {/* User Hand */}
