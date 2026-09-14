@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 
 export default function useOnlineReverse() {
@@ -9,6 +9,8 @@ export default function useOnlineReverse() {
   const [gameState, setGameState] = useState(null);
   const [mySeat, setMySeat] = useState(null);
   const [joinCode, setJoinCode] = useState('');
+  const [players, setPlayers] = useState([]);
+  const [maxPlayers, setMaxPlayers] = useState(4);
   
   const currentRoomId = useRef(null);
   
@@ -60,21 +62,33 @@ export default function useOnlineReverse() {
       setError(err.message || 'An error occurred');
     });
 
-    newSocket.on('room-created', ({ roomId }) => {
+    newSocket.on('room-created', ({ roomId, maxPlayers }) => {
       currentRoomId.current = roomId;
       setJoinCode(roomId);
-      // Auto-start for reverse since we configure players upfront
-      newSocket.emit('reverse-start-game', { roomId });
+      setStatus('waiting');
+      setPlayers([getPlayerId()]);
+      if (maxPlayers) setMaxPlayers(maxPlayers);
     });
     
-    newSocket.on('room-joined', ({ room, reconnected }) => {
-      currentRoomId.current = room.roomId;
-      setJoinCode(room.roomId);
+    newSocket.on('player-joined', ({ roomId, players, maxPlayers }) => {
+      currentRoomId.current = roomId;
+      setJoinCode(roomId);
+      setStatus('waiting');
+      setPlayers(players);
+      if (maxPlayers) setMaxPlayers(maxPlayers);
+    });
+
+    newSocket.on('opponent-joined', ({ players, maxPlayers }) => {
+      setPlayers(players);
+      if (maxPlayers) setMaxPlayers(maxPlayers);
     });
 
     newSocket.on('reverse-game-state', (state) => {
       setGameState(state);
       setMySeat(state.mySeat);
+      if (state.status) {
+         setStatus(state.status === 'playing' || state.status === 'color_selection' ? 'playing' : state.status);
+      }
     });
     
     setSocket(newSocket);
@@ -89,6 +103,7 @@ export default function useOnlineReverse() {
     setStatus('idle');
     setGameState(null);
     setJoinCode('');
+    setPlayers([]);
     currentRoomId.current = null;
     initSocket();
   };
@@ -111,6 +126,11 @@ export default function useOnlineReverse() {
     const s = initSocket();
     s.emit('join-room', { roomId: code });
   };
+
+  const startGame = useCallback(() => {
+    if (!socket || !currentRoomId.current) return;
+    socket.emit('reverse-start-game', { roomId: currentRoomId.current });
+  }, [socket]);
   
   const playCard = (cardId) => {
     if (!socket || !currentRoomId.current) return;
@@ -144,8 +164,11 @@ export default function useOnlineReverse() {
     gameState,
     joinCode,
     setJoinCode,
+    players,
+    maxPlayers,
     createRoom,
     joinRoom,
+    startGame,
     resetConnection,
     connect: initSocket,
     mySeat,
