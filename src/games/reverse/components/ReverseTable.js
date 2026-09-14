@@ -129,8 +129,43 @@ export default function ReverseTable({
       {/* Center Trick Area */}
       <div className="flex-1 relative flex items-center justify-center z-10 mt-8 sm:mt-0 pointer-events-none">
         
-        {/* Draw Pile (Left of the circle) */}
-        <div className="absolute left-[5%] sm:left-[15%] flex items-center justify-center z-20 pointer-events-auto">
+        {/* Discard Pile (Dead Center, No Circle) */}
+        <div className="absolute z-10 pointer-events-auto">
+          {topCard ? <ReverseCard card={topCard} /> : <div className="w-16 h-24 sm:w-24 sm:h-36 border-[4px] border-dashed border-white/20 rounded-xl bg-black/10"></div>}
+        </div>
+        
+        {/* Game Info Status */}
+        <div className="absolute top-[25%] sm:top-[20%] left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
+            {/* Direction Arrow */}
+            <div className={`text-4xl sm:text-5xl text-white/50 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
+              ↻
+            </div>
+            {/* Active Color Info */}
+            {activeColor && (
+              <div className="mt-2 flex items-center gap-2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                 <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-inner border border-white/30 
+                    ${activeColor === 'RED' ? 'bg-red-500' : activeColor === 'BLUE' ? 'bg-blue-500' : activeColor === 'GREEN' ? 'bg-green-500' : 'bg-yellow-400'}`}>
+                 </div>
+                 <span className="text-white text-[10px] sm:text-xs font-bold tracking-wider">{activeColor}</span>
+              </div>
+            )}
+        </div>
+
+        {/* Recent Action Log */}
+        {actionLog && actionLog.length > 0 && (
+           <div className="absolute bottom-[5%] sm:bottom-[10%] left-1/2 -translate-x-1/2 text-center w-max max-w-sm px-4 pointer-events-none z-30">
+              <span className="bg-black/60 backdrop-blur-md text-slate-200 text-xs sm:text-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] inline-block">
+                 {actionLog[actionLog.length - 1]}
+              </span>
+           </div>
+        )}
+      </div>
+
+      {/* User Hand */}
+      <div className="relative w-full pb-6 pt-12 sm:pb-8 flex flex-col items-center z-20">
+        
+        {/* Draw Pile (Left side of cards) */}
+        <div className="absolute bottom-6 sm:bottom-10 left-4 sm:left-12 z-30 pointer-events-auto">
           <button 
             onClick={() => isMyTurn && onDrawCard()}
             disabled={!isMyTurn}
@@ -148,50 +183,12 @@ export default function ReverseTable({
           </button>
         </div>
 
-        <div className="relative w-40 h-40 sm:w-64 sm:h-64 rounded-full border border-white/10 flex items-center justify-center bg-black/10 mt-8 sm:mt-0 pointer-events-auto shadow-inner">
-
-          {/* Discard Pile (Dead Center) */}
-          <div className="absolute z-10">
-            {topCard ? <ReverseCard card={topCard} /> : <div className="w-16 h-24 sm:w-24 sm:h-36 border-[4px] border-dashed border-white/20 rounded-xl bg-black/10"></div>}
-          </div>
-          
-          {/* Game Info Status */}
-          <div className="absolute top-[-20%] sm:top-[-15%] left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
-              {/* Direction Arrow */}
-              <div className={`text-4xl sm:text-5xl text-white/50 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
-                ↻
-              </div>
-              {/* Active Color Info */}
-              {activeColor && (
-                <div className="mt-2 flex items-center gap-2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-                   <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-inner border border-white/30 
-                      ${activeColor === 'RED' ? 'bg-red-500' : activeColor === 'BLUE' ? 'bg-blue-500' : activeColor === 'GREEN' ? 'bg-green-500' : 'bg-yellow-400'}`}>
-                   </div>
-                   <span className="text-white text-[10px] sm:text-xs font-bold tracking-wider">{activeColor}</span>
-                </div>
-              )}
-          </div>
-        </div>
-
-        {/* Recent Action Log */}
-        {actionLog && actionLog.length > 0 && (
-           <div className="absolute bottom-[5%] sm:bottom-[10%] left-1/2 -translate-x-1/2 text-center w-max max-w-sm px-4 pointer-events-none z-30">
-              <span className="bg-black/60 backdrop-blur-md text-slate-200 text-xs sm:text-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] inline-block">
-                 {actionLog[actionLog.length - 1]}
-              </span>
-           </div>
-        )}
-      </div>
-
-      {/* User Hand */}
-      <div className="relative w-full pb-6 pt-12 sm:pb-8 flex flex-col items-center z-20">
-        
-        {/* UNO Button */}
-        <div className="absolute -top-8 sm:-top-4 right-2 sm:right-10 z-30">
+        {/* UNO Button (Right side of cards) */}
+        <div className="absolute bottom-6 sm:bottom-10 right-4 sm:right-12 z-30 pointer-events-auto">
           <button 
             onClick={onCallUno}
             disabled={myHand.length > 2}
-            className={`w-14 h-14 sm:w-20 sm:h-20 rounded-full font-black italic border-4 shadow-2xl transition-all
+            className={`w-16 h-16 sm:w-24 sm:h-24 rounded-full font-black italic border-4 shadow-2xl transition-all flex items-center justify-center text-sm sm:text-xl
               ${myHand.length <= 2 ? 'bg-red-500 hover:bg-red-400 text-white border-white scale-110 animate-pulse cursor-pointer hover:shadow-[0_0_30px_rgba(239,68,68,0.8)]' : 'bg-slate-800 text-slate-500 border-slate-600 opacity-50 cursor-not-allowed'}
             `}
           >
