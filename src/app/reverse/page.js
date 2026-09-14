@@ -125,7 +125,7 @@ export default function ReversePage() {
 
       <main className="flex-1 flex flex-col items-center justify-center p-4">
         {!gameState && !mode && (
-          <ModeSelection onSelectMode={setMode} />
+          <ModeSelection onLocal={() => setMode('bots')} onOnline={() => setMode('online')} />
         )}
 
         {!gameState && mode === 'bots' && renderBotConfig()}
