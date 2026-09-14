@@ -32,6 +32,7 @@ export default function ReversePage() {
     callUno,
     challengeUno,
     resetConnection,
+    connect,
     mySeat
   } = useOnlineReverse();
 
@@ -125,7 +126,7 @@ export default function ReversePage() {
 
       <main className="flex-1 flex flex-col items-center justify-center p-4">
         {!gameState && !mode && (
-          <ModeSelection onLocal={() => setMode('bots')} onOnline={() => setMode('online')} />
+          <ModeSelection onLocal={() => setMode('bots')} onOnline={() => { setMode('online'); connect(); }} />
         )}
 
         {!gameState && mode === 'bots' && renderBotConfig()}

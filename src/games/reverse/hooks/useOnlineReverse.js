@@ -147,6 +147,7 @@ export default function useOnlineReverse() {
     createRoom,
     joinRoom,
     resetConnection,
+    connect: initSocket,
     mySeat,
     playCard,
     drawCard,
