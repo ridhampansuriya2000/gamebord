@@ -227,7 +227,7 @@ export default function ReversePage() {
           <div className="w-full h-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500 max-sm:overflow-hidden">
             {/* Title Outside Table */}
             <div className="mb-2 sm:mb-4 text-center">
-               <h1 className="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 drop-shadow-[0_2px_10px_rgba(52,211,153,0.5)] tracking-widest italic uppercase">
+               <h1 className="text-xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 drop-shadow-[0_2px_10px_rgba(52,211,153,0.5)] tracking-widest italic uppercase">
                  REVERSE
                </h1>
             </div>
