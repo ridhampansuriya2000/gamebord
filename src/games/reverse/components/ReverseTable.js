@@ -11,7 +11,12 @@ export default function ReverseTable({
   onDrawCard, 
   onChooseColor, 
   onCallUno, 
-  onChallengeUno 
+  onChallengeUno,
+  onRestart,
+  onLeave,
+  restartRequested,
+  restartAcceptedCount,
+  mode
 }) {
   const [selectedCard, setSelectedCard] = useState(null);
 
@@ -48,6 +53,15 @@ export default function ReverseTable({
     if (card.color === activeColor) return true;
     if (topCard && card.type === topCard.type && card.value === topCard.value) return true;
     return false;
+  };
+
+  const hasValidCard = myHand.some(isCardValid);
+
+  const getPlayerName = (id) => {
+    if (!id) return '';
+    if (id === players[mySeat]) return 'You';
+    if (id.startsWith('bot_')) return `Bot ${id.split('_')[1]}`;
+    return playerNames?.[id] || 'Opponent';
   };
 
   const getPlayerPosition = (index, totalOpponents) => {
@@ -196,15 +210,15 @@ export default function ReverseTable({
         {/* Draw Pile (Left side of cards) */}
         <div className="absolute bottom-6 sm:bottom-10 left-4 sm:left-12 z-30 pointer-events-auto">
           <button 
-            onClick={() => isMyTurn && onDrawCard()}
-            disabled={!isMyTurn}
-            className={`relative transition-all duration-300 ${isMyTurn ? 'hover:scale-105 hover:-translate-y-2 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.6)] animate-pulse' : 'opacity-80 grayscale-[0.3] cursor-not-allowed'}`}
+            onClick={() => isMyTurn && !hasValidCard && onDrawCard()}
+            disabled={!isMyTurn || hasValidCard}
+            className={`relative transition-all duration-300 ${isMyTurn && !hasValidCard ? 'hover:scale-105 hover:-translate-y-2 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.6)] animate-pulse' : 'opacity-80 grayscale-[0.3] cursor-not-allowed'}`}
           >
             <ReverseCard hidden={true} />
             <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-white font-bold text-[10px] sm:text-xs whitespace-nowrap bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm border border-white/10 shadow-lg">
               {deckCount} Cards
             </div>
-            {isMyTurn && (
+            {isMyTurn && !hasValidCard && (
                <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-emerald-400 font-black italic text-[10px] sm:text-xs whitespace-nowrap drop-shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse">
                   DRAW
                </div>
@@ -255,20 +269,42 @@ export default function ReverseTable({
       {status === 'finished' && (
         <div className="absolute inset-0 bg-black/80 z-50 flex flex-col items-center justify-center backdrop-blur-md animate-in fade-in zoom-in duration-500">
            <div className="text-5xl sm:text-7xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-tr from-yellow-300 to-amber-600 mb-2 drop-shadow-lg">
-              WINNER!
+              {winner === players[mySeat] ? 'YOU WIN!' : 'WINNER!'}
            </div>
            <div className="text-3xl text-white font-bold mb-8">
-              {winner}
+              {getPlayerName(winner)}
            </div>
            
-           <div className="bg-white/10 p-6 rounded-2xl border border-white/20 w-80 max-w-[90%]">
+           <div className="bg-white/10 p-6 rounded-2xl border border-white/20 w-80 max-w-[90%] mb-8">
              <h3 className="text-xl text-center text-emerald-400 font-bold mb-4 border-b border-white/10 pb-2">Scores</h3>
-             {Object.entries(scores).map(([name, score]) => (
-               <div key={name} className="flex justify-between items-center py-2">
-                 <span className="text-slate-200">{name}</span>
+             {Object.entries(scores).map(([id, score]) => (
+               <div key={id} className="flex justify-between items-center py-2">
+                 <span className="text-slate-200">{getPlayerName(id)}</span>
                  <span className="text-white font-black">{score}</span>
                </div>
              ))}
+           </div>
+
+           <div className="flex gap-4">
+             <button
+               onClick={onLeave}
+               className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all"
+             >
+               Back to Menu
+             </button>
+             <button
+               onClick={onRestart}
+               disabled={mode === 'online' && restartRequested}
+               className={`px-6 py-3 font-bold rounded-xl transition-all shadow-lg text-emerald-950 ${
+                 (mode === 'online' && restartRequested)
+                   ? 'bg-emerald-500/50 cursor-wait'
+                   : 'bg-emerald-400 hover:bg-emerald-300 hover:scale-105 hover:-translate-y-1'
+               }`}
+             >
+               {(mode === 'online' && restartRequested) 
+                 ? `Waiting... (${restartAcceptedCount}/${players.filter(p => !p.startsWith('bot_')).length})` 
+                 : 'Play Again'}
+             </button>
            </div>
         </div>
       )}

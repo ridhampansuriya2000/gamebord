@@ -231,6 +231,11 @@ export default function ReversePage() {
             onChooseColor={chooseColor}
             onCallUno={callUno}
             onChallengeUno={challengeUno}
+            onRestart={requestRestart}
+            onLeave={handleBackToMode}
+            restartRequested={restartRequested}
+            restartAcceptedCount={restartAcceptedCount}
+            mode={mode}
           />
         )}
       </main>
