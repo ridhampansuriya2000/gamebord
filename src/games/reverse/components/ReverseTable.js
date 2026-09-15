@@ -133,11 +133,12 @@ export default function ReverseTable({
   };
 
   return (
-    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/90 sm:rounded-[4rem] border-4 sm:border-[12px] border-amber-900/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col font-sans">
+    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/60 sm:rounded-[4rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col font-sans">
       {/* Premium Felt Texture */}
       <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
+      
       {/* Center Table Glow */}
-      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 sm:w-96 sm:h-96 bg-green-400/10 blur-[100px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-green-500/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
 
       {isChoosingColor && <ColorPicker onSelect={onChooseColor} />}
 
@@ -168,11 +169,8 @@ export default function ReverseTable({
       </div>
 
       {/* Center Trick Area */}
-      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-10 pointer-events-none">
+      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 sm:w-64 sm:h-64 rounded-full border border-white/10 flex items-center justify-center bg-black/10 z-10 shadow-inner">
         
-        {/* Inner Circle (Mindi Style) */}
-        <div className="absolute w-36 h-36 sm:w-64 sm:h-64 rounded-full border-[2px] border-white/20 flex items-center justify-center bg-black/10 shadow-inner z-0"></div>
-
         {/* Discard Pile (Messy Stack) */}
         <div className="relative z-10 pointer-events-auto">
           {recentDiscards.length > 0 ? (
