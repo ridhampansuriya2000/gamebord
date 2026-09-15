@@ -27,9 +27,9 @@ const SYMBOLS = {
 export default function ReverseCard({ card, onClick, selectable, selected, disabled, hidden }) {
   if (hidden) {
     return (
-      <div className="w-14 h-24 sm:w-[4.5rem] sm:h-28 bg-gradient-to-br from-slate-800 to-black rounded-lg sm:rounded-xl border-[2px] sm:border-4 border-white shadow-[0_4px_10px_rgba(0,0,0,0.5)] flex items-center justify-center relative overflow-hidden group">
+      <div className="w-14 h-24 sm:w-[4.5rem] sm:h-28 bg-gradient-to-br from-slate-800 to-black rounded-md sm:rounded-lg border-[2px] sm:border-4 border-white shadow-[0_4px_10px_rgba(0,0,0,0.5)] flex items-center justify-center relative overflow-hidden group">
          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] pointer-events-none mix-blend-overlay"></div>
-         <div className="absolute inset-1 sm:inset-1.5 border-2 border-red-500/30 rounded-lg flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] shadow-inner">
+         <div className="absolute inset-1 sm:inset-1.5 border-2 border-red-500/30 rounded-md flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] shadow-inner">
             <span className="text-red-500/70 text-2xl sm:text-4xl font-black italic -rotate-12 drop-shadow-md">R</span>
          </div>
       </div>
@@ -46,7 +46,7 @@ export default function ReverseCard({ card, onClick, selectable, selected, disab
     <button
       onClick={() => selectable && onClick && onClick(card)}
       disabled={disabled || !selectable}
-      className={`relative w-14 h-24 sm:w-[4.5rem] sm:h-28 ${bgColor} rounded-lg sm:rounded-xl border-[2px] sm:border-[3px] border-white overflow-hidden transition-all duration-300 transform-gpu
+      className={`relative w-14 h-24 sm:w-[4.5rem] sm:h-28 ${bgColor} rounded-md sm:rounded-lg border-[2px] sm:border-[3px] border-white overflow-hidden transition-all duration-300 transform-gpu
         ${selectable ? 'hover:-translate-y-4 cursor-pointer shadow-[0_10px_20px_rgba(0,0,0,0.4)]' : 'cursor-default shadow-[0_4px_10px_rgba(0,0,0,0.3)]'} 
         ${selected ? '-translate-y-6 sm:-translate-y-8 shadow-[0_20px_30px_rgba(0,0,0,0.6)] ring-4 ring-white/50 max-sm:scale-110 max-sm:z-50' : ''} 
         ${disabled ? 'brightness-50 grayscale-[0.3] cursor-not-allowed hover:-translate-y-0 shadow-sm' : ''}
