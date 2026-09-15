@@ -27,10 +27,10 @@ const SYMBOLS = {
 export default function ReverseCard({ card, onClick, selectable, selected, disabled, hidden }) {
   if (hidden) {
     return (
-      <div className="w-16 h-24 sm:w-24 sm:h-36 bg-gradient-to-br from-slate-800 to-black rounded-xl sm:rounded-2xl border-4 sm:border-[6px] border-white shadow-[0_4px_10px_rgba(0,0,0,0.5)] flex items-center justify-center relative overflow-hidden group">
+      <div className="w-14 h-20 sm:w-20 sm:h-32 bg-gradient-to-br from-slate-800 to-black rounded-lg sm:rounded-xl border-[2px] sm:border-4 border-white shadow-[0_4px_10px_rgba(0,0,0,0.5)] flex items-center justify-center relative overflow-hidden group">
          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] pointer-events-none mix-blend-overlay"></div>
-         <div className="absolute inset-1.5 sm:inset-2 border-2 border-red-500/30 rounded-lg flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] shadow-inner">
-            <span className="text-red-500/70 text-3xl sm:text-5xl font-black italic -rotate-12 drop-shadow-md">R</span>
+         <div className="absolute inset-1 sm:inset-1.5 border-2 border-red-500/30 rounded-lg flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] shadow-inner">
+            <span className="text-red-500/70 text-2xl sm:text-4xl font-black italic -rotate-12 drop-shadow-md">R</span>
          </div>
       </div>
     );
@@ -46,17 +46,17 @@ export default function ReverseCard({ card, onClick, selectable, selected, disab
     <button
       onClick={() => selectable && onClick && onClick(card)}
       disabled={disabled || !selectable}
-      className={`relative w-16 h-24 sm:w-24 sm:h-36 ${bgColor} rounded-xl sm:rounded-2xl border-4 sm:border-[6px] border-white overflow-hidden transition-all duration-300 transform-gpu
+      className={`relative w-14 h-20 sm:w-20 sm:h-32 ${bgColor} rounded-lg sm:rounded-xl border-[2px] sm:border-4 border-white overflow-hidden transition-all duration-300 transform-gpu
         ${selectable ? 'hover:-translate-y-4 cursor-pointer shadow-[0_10px_20px_rgba(0,0,0,0.4)]' : 'cursor-default shadow-[0_4px_10px_rgba(0,0,0,0.3)]'} 
         ${selected ? '-translate-y-6 sm:-translate-y-8 shadow-[0_20px_30px_rgba(0,0,0,0.6)] ring-4 ring-white/50 max-sm:scale-110 max-sm:z-50' : ''} 
-        ${disabled ? 'opacity-50 grayscale-[0.5] cursor-not-allowed hover:-translate-y-0 shadow-sm' : ''}
+        ${disabled ? 'brightness-50 grayscale-[0.3] cursor-not-allowed hover:-translate-y-0 shadow-sm' : ''}
       `}
     >
       {/* Texture Overlay */}
       <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] pointer-events-none mix-blend-overlay"></div>
       
       {/* Inner Ellipse styling typical of Uno cards */}
-      <div className="absolute inset-1.5 sm:inset-2 bg-gradient-to-br from-white to-slate-100 rounded-[50%] flex items-center justify-center overflow-hidden transform -skew-y-[12deg] scale-95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.2)]">
+      <div className="absolute inset-1 sm:inset-1.5 bg-gradient-to-br from-white to-slate-100 rounded-[50%] flex items-center justify-center overflow-hidden transform -skew-y-[12deg] scale-95 shadow-[inset_0_2px_8px_rgba(0,0,0,0.2)]">
         {/* Wild card colors behind the ellipse */}
         {isWild && (
           <div className="absolute inset-0 flex flex-wrap opacity-30 pointer-events-none">
@@ -68,7 +68,7 @@ export default function ReverseCard({ card, onClick, selectable, selected, disab
         )}
 
         <span 
-          className={`text-3xl sm:text-5xl font-black italic tracking-tighter ${textColor} drop-shadow-sm transform skew-y-[12deg]`}
+          className={`text-2xl sm:text-4xl font-black italic tracking-tighter ${textColor} drop-shadow-sm transform skew-y-[12deg]`}
           style={{ textShadow: '1px 1px 0 rgba(0,0,0,0.1), -1px -1px 0 rgba(255,255,255,0.8)' }}
         >
           {displayValue}

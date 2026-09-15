@@ -72,7 +72,7 @@ export default function PlayingCard({ card, onClick, onMouseEnter, selectable, s
       className={`relative w-12 h-16 sm:w-20 sm:h-32 bg-white rounded-xl border shadow-lg overflow-hidden transition-all duration-200 
         ${selectable ? 'hover:-translate-y-2 cursor-pointer shadow-cyan-500/20 hover:shadow-cyan-500/40' : 'cursor-default'} 
         ${selected ? '-translate-y-4 shadow-cyan-500/50 ring-2 ring-cyan-400 max-sm:scale-125 max-sm:z-50' : ''} 
-        ${disabled ? 'opacity-50 grayscale cursor-not-allowed' : ''}
+        ${disabled ? 'brightness-50 grayscale cursor-not-allowed' : ''}
       `}
     >
       {/* Big Light Background Symbol (On every card) */}

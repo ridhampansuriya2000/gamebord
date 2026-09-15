@@ -3,7 +3,10 @@ import PlayingCard from './PlayingCard';
 import { getValidCards } from '../engine/trumpRules';
 import { soundEngine } from '../utils/sound';
 
-export default function MindiTable({ gameState, mySeat, players = [], playerNames = {}, onPlayCard, onSetTrump, onRevealTrump }) {
+export default function MindiTable({ gameState, mySeat, players = [],  playerNames = {},
+  botActionMessage = null,
+  onPlayCard,
+  onSetTrump, onRevealTrump }) {
   const [selectedCard, setSelectedCard] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const prevGameState = useRef(gameState);
@@ -127,6 +130,16 @@ export default function MindiTable({ gameState, mySeat, players = [], playerName
 
       {/* Center Trick Area */}
       <div className="relative w-36 h-36 sm:w-64 sm:h-64 rounded-full border border-white/10 flex items-center justify-center bg-black/10 mt-8 sm:mt-0">
+         
+         {/* Bot Action Message */}
+         {botActionMessage && (
+           <div className="absolute top-[-25%] left-1/2 -translate-x-1/2 z-30 pointer-events-none whitespace-nowrap">
+             <span className="text-amber-300 font-bold animate-pulse text-[10px] sm:text-xs bg-black/60 px-3 py-1 rounded-full border border-amber-500/30 backdrop-blur-sm shadow-xl">
+               {botActionMessage}
+             </span>
+           </div>
+         )}
+
          {currentTrick.map((play, idx) => {
            const rel = getRelativeSeat(play.seatIndex);
            let transform = '';

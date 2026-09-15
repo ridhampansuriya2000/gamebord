@@ -181,18 +181,14 @@ export default function MindiPage() {
         {activeGame.gameState && (status === 'selecting_trump' || status === 'playing' || status === 'trick_complete' || status === 'finished') && (
           <div className="w-full h-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500 max-sm:overflow-hidden">
             
-            {/* Action Bar */}
-            {gameMode === 'local' && localGame.botActionMessage && (
-              <div className="mb-2 sm:mb-4 h-6 sm:h-8 flex items-center justify-center w-full">
-                <span className="text-amber-300 font-medium animate-pulse text-sm sm:text-base">{localGame.botActionMessage}</span>
-              </div>
-            )}
+            {/* Action Bar (Moved inside Table) */}
 
             <MindiTable 
               gameState={activeGame.gameState}
               mySeat={gameMode === 'online' ? onlineGame.mySeat : 0}
               players={gameMode === 'online' ? onlineGame.players : null}
               playerNames={gameMode === 'online' ? onlineGame.playerNames : null}
+              botActionMessage={gameMode === 'local' ? localGame.botActionMessage : null}
               onPlayCard={activeGame.playCard}
               onSetTrump={activeGame.setTrump}
               onRevealTrump={activeGame.revealTrump}

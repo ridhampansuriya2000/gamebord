@@ -133,7 +133,7 @@ export default function ReverseTable({
   };
 
   return (
-    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/90 sm:rounded-[4rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col font-sans">
+    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/90 sm:rounded-[4rem] border-4 sm:border-[12px] border-amber-900/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col font-sans">
       {/* Premium Felt Texture */}
       <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
       {/* Center Table Glow */}
@@ -151,18 +151,18 @@ export default function ReverseTable({
       </div>
 
       {/* Game Info HUD (Top Right) */}
-      <div className="absolute top-4 sm:top-8 right-4 sm:right-8 flex flex-col items-center z-20 pointer-events-none bg-black/40 p-3 sm:p-4 rounded-2xl border border-white/10 backdrop-blur-md shadow-xl">
+      <div className="absolute top-4 sm:top-8 right-4 sm:right-8 flex flex-col items-center z-20 pointer-events-none bg-slate-900/80 p-3 sm:p-4 rounded-xl border border-white/10 shadow-lg">
           {/* Direction Arrow */}
-          <div className={`text-3xl sm:text-4xl text-white/70 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
+          <div className={`text-2xl sm:text-3xl text-white/70 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
             ↻
           </div>
           {/* Active Color Info */}
           {activeColor && (
-            <div className="mt-2 flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full border border-white/10">
+            <div className="mt-1 sm:mt-2 flex items-center gap-1.5 sm:gap-2">
                <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-inner border border-white/30 
                   ${activeColor === 'RED' ? 'bg-red-500' : activeColor === 'BLUE' ? 'bg-blue-500' : activeColor === 'GREEN' ? 'bg-green-500' : 'bg-yellow-400'}`}>
                </div>
-               <span className="text-white text-[10px] sm:text-xs font-bold tracking-wider">{activeColor}</span>
+               <span className="text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest">{activeColor}</span>
             </div>
           )}
       </div>
@@ -170,6 +170,9 @@ export default function ReverseTable({
       {/* Center Trick Area */}
       <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-10 pointer-events-none">
         
+        {/* Inner Circle (Mindi Style) */}
+        <div className="absolute w-36 h-36 sm:w-64 sm:h-64 rounded-full border-[2px] border-white/20 flex items-center justify-center bg-black/10 shadow-inner z-0"></div>
+
         {/* Discard Pile (Messy Stack) */}
         <div className="relative z-10 pointer-events-auto">
           {recentDiscards.length > 0 ? (
