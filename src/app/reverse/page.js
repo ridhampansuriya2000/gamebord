@@ -224,22 +224,49 @@ export default function ReversePage() {
         )}
 
         {gameState && (
-          <ReverseTable 
-            gameState={gameState} 
-            mySeat={mySeat}
-            players={players}
-            playerNames={playerNames}
-            onPlayCard={playCard}
-            onDrawCard={drawCard}
-            onChooseColor={chooseColor}
-            onCallUno={callUno}
-            onChallengeUno={challengeUno}
-            onRestart={requestRestart}
-            onLeave={handleBackToMode}
-            restartRequested={restartRequested}
-            restartAcceptedCount={restartAcceptedCount}
-            mode={mode}
-          />
+          <div className="w-full h-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500 max-sm:overflow-hidden">
+            {/* Title Outside Table */}
+            <div className="mb-2 sm:mb-4 text-center">
+               <h1 className="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 drop-shadow-[0_2px_10px_rgba(52,211,153,0.5)] tracking-widest italic uppercase">
+                 REVERSE
+               </h1>
+            </div>
+
+            <ReverseTable 
+              gameState={gameState} 
+              mySeat={mySeat}
+              players={players}
+              playerNames={playerNames}
+              onPlayCard={playCard}
+              onDrawCard={drawCard}
+              onChooseColor={chooseColor}
+              onCallUno={callUno}
+              onChallengeUno={challengeUno}
+              onRestart={requestRestart}
+              onLeave={handleBackToMode}
+              restartRequested={restartRequested}
+              restartAcceptedCount={restartAcceptedCount}
+              mode={mode}
+            />
+
+            {/* Finished state actions (Restart) */}
+            {status === 'finished' && (
+              <div className="mt-8 flex flex-col items-center gap-4 animate-in slide-in-from-bottom-4">
+                 <button 
+                   onClick={requestRestart} 
+                   disabled={mode === 'online' && restartRequested} 
+                   className="px-8 py-3 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 disabled:text-slate-400 text-emerald-950 font-black rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                 >
+                   {(mode === 'online' && restartRequested) 
+                     ? `Waiting for others (${restartAcceptedCount}/${players.filter(p => !p.startsWith('bot_')).length})...` 
+                     : (mode === 'online' ? 'Request Rematch' : 'Play Again')}
+                 </button>
+                 <button onClick={handleBackToMode} className="text-slate-400 hover:text-white font-medium transition-colors">
+                   Leave Game
+                 </button>
+              </div>
+            )}
+          </div>
         )}
       </main>
     </div>
