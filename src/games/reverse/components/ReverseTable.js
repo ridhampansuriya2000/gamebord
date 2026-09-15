@@ -30,6 +30,17 @@ export default function ReverseTable({
   }
 
   const topCard = discardPile[discardPile.length - 1];
+  const recentDiscards = discardPile.slice(Math.max(0, discardPile.length - 6));
+
+  // Deterministic random-like values based on string id
+  const getCardTransform = (id) => {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    const rotate = (hash % 20) - 10; // -10 to 10 degrees
+    const offsetX = (hash % 10) - 5; // -5 to 5 px
+    const offsetY = ((hash >> 2) % 10) - 5;
+    return `translate(${offsetX}px, ${offsetY}px) rotate(${rotate}deg)`;
+  };
 
   // Logic to determine if a card is valid in UI
   const isCardValid = (card) => {
@@ -125,34 +136,53 @@ export default function ReverseTable({
         ))}
       </div>
 
+      {/* Game Info HUD (Top Right) */}
+      <div className="absolute top-4 sm:top-8 right-4 sm:right-8 flex flex-col items-center z-20 pointer-events-none bg-black/40 p-3 sm:p-4 rounded-2xl border border-white/10 backdrop-blur-md shadow-xl">
+          {/* Direction Arrow */}
+          <div className={`text-3xl sm:text-4xl text-white/70 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
+            ↻
+          </div>
+          {/* Active Color Info */}
+          {activeColor && (
+            <div className="mt-2 flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full border border-white/10">
+               <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-inner border border-white/30 
+                  ${activeColor === 'RED' ? 'bg-red-500' : activeColor === 'BLUE' ? 'bg-blue-500' : activeColor === 'GREEN' ? 'bg-green-500' : 'bg-yellow-400'}`}>
+               </div>
+               <span className="text-white text-[10px] sm:text-xs font-bold tracking-wider">{activeColor}</span>
+            </div>
+          )}
+      </div>
+
       {/* Center Trick Area */}
       <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-10 pointer-events-none">
         
-        {/* Discard Pile (Dead Center, No Circle) */}
+        {/* Discard Pile (Messy Stack) */}
         <div className="relative z-10 pointer-events-auto">
-          {topCard ? <ReverseCard card={topCard} /> : <div className="w-16 h-24 sm:w-24 sm:h-36 border-[4px] border-dashed border-white/20 rounded-xl bg-black/10"></div>}
-        </div>
-        
-        {/* Game Info Status */}
-        <div className="absolute top-[120%] sm:top-[125%] left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
-            {/* Direction Arrow */}
-            <div className={`text-4xl sm:text-5xl text-white/50 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
-              ↻
-            </div>
-            {/* Active Color Info */}
-            {activeColor && (
-              <div className="mt-2 flex items-center gap-2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-                 <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-inner border border-white/30 
-                    ${activeColor === 'RED' ? 'bg-red-500' : activeColor === 'BLUE' ? 'bg-blue-500' : activeColor === 'GREEN' ? 'bg-green-500' : 'bg-yellow-400'}`}>
-                 </div>
-                 <span className="text-white text-[10px] sm:text-xs font-bold tracking-wider">{activeColor}</span>
-              </div>
-            )}
+          {recentDiscards.length > 0 ? (
+            recentDiscards.map((card, idx) => {
+              const isTop = idx === recentDiscards.length - 1;
+              return (
+                <div 
+                  key={card.id} 
+                  className={`absolute top-0 left-0 transition-transform ${isTop ? 'animate-in fade-in zoom-in-50 duration-500 ease-out' : ''}`}
+                  style={{ 
+                    transform: getCardTransform(card.id),
+                    zIndex: idx,
+                    position: isTop ? 'relative' : 'absolute'
+                  }}
+                >
+                  <ReverseCard card={card} />
+                </div>
+              );
+            })
+          ) : (
+            <div className="w-16 h-24 sm:w-24 sm:h-36 border-[4px] border-dashed border-white/20 rounded-xl bg-black/10"></div>
+          )}
         </div>
 
         {/* Recent Action Log */}
         {actionLog && actionLog.length > 0 && (
-           <div className="absolute bottom-[200%] sm:bottom-[150%] left-1/2 -translate-x-1/2 text-center w-max max-w-sm px-4 pointer-events-none z-30">
+           <div className="absolute bottom-[180%] sm:bottom-[150%] left-1/2 -translate-x-1/2 text-center w-max max-w-sm px-4 pointer-events-none z-30">
               <span className="bg-black/60 backdrop-blur-md text-slate-200 text-xs sm:text-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] inline-block">
                  {actionLog[actionLog.length - 1]}
               </span>
