@@ -25,9 +25,12 @@ export const useBingoGame = () => {
     setStatus('playing');
   };
 
-  const callNumber = (num) => {
+  const callNumber = (num, caller = 'human') => {
     if (status !== 'playing') return;
     if (calledNumbers.includes(num)) return; // Already called
+    
+    if (caller === 'human' && !isHumanTurn) return;
+    if (caller === 'bot' && isHumanTurn) return;
 
     const newCalled = [...calledNumbers, num];
     setCalledNumbers(newCalled);
@@ -58,7 +61,7 @@ export const useBingoGame = () => {
       const timer = setTimeout(() => {
         const botChoice = chooseBotNumber(humanBoard, botBoard, calledNumbers);
         if (botChoice !== null) {
-          callNumber(botChoice);
+          callNumber(botChoice, 'bot');
         }
       }, 1000);
       return () => clearTimeout(timer);

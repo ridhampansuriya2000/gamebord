@@ -108,10 +108,9 @@ export default function ReverseTable({
   };
 
   return (
-    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/90 sm:rounded-[4rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6),inset_0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col font-sans">
-      {/* Premium Felt Texture & Lighting */}
+    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/90 sm:rounded-[4rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col font-sans">
+      {/* Premium Felt Texture */}
       <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none"></div>
       {/* Center Table Glow */}
       <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 sm:w-96 sm:h-96 bg-green-400/10 blur-[100px] rounded-full pointer-events-none"></div>
 
@@ -127,15 +126,15 @@ export default function ReverseTable({
       </div>
 
       {/* Center Trick Area */}
-      <div className="flex-1 relative flex items-center justify-center z-10 mt-8 sm:mt-0 pointer-events-none">
+      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-10 pointer-events-none">
         
         {/* Discard Pile (Dead Center, No Circle) */}
-        <div className="absolute z-10 pointer-events-auto">
+        <div className="relative z-10 pointer-events-auto">
           {topCard ? <ReverseCard card={topCard} /> : <div className="w-16 h-24 sm:w-24 sm:h-36 border-[4px] border-dashed border-white/20 rounded-xl bg-black/10"></div>}
         </div>
         
         {/* Game Info Status */}
-        <div className="absolute top-[25%] sm:top-[20%] left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
+        <div className="absolute top-[120%] sm:top-[125%] left-1/2 -translate-x-1/2 flex flex-col items-center z-20">
             {/* Direction Arrow */}
             <div className={`text-4xl sm:text-5xl text-white/50 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
               ↻
@@ -153,7 +152,7 @@ export default function ReverseTable({
 
         {/* Recent Action Log */}
         {actionLog && actionLog.length > 0 && (
-           <div className="absolute bottom-[5%] sm:bottom-[10%] left-1/2 -translate-x-1/2 text-center w-max max-w-sm px-4 pointer-events-none z-30">
+           <div className="absolute bottom-[200%] sm:bottom-[150%] left-1/2 -translate-x-1/2 text-center w-max max-w-sm px-4 pointer-events-none z-30">
               <span className="bg-black/60 backdrop-blur-md text-slate-200 text-xs sm:text-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] inline-block">
                  {actionLog[actionLog.length - 1]}
               </span>
@@ -162,7 +161,7 @@ export default function ReverseTable({
       </div>
 
       {/* User Hand */}
-      <div className="relative w-full pb-6 pt-12 sm:pb-8 flex flex-col items-center z-20">
+      <div className="absolute bottom-0 left-0 right-0 w-full pb-2 sm:pb-4 flex flex-col items-center z-20">
         
         {/* Draw Pile (Left side of cards) */}
         <div className="absolute bottom-6 sm:bottom-10 left-4 sm:left-12 z-30 pointer-events-auto">
