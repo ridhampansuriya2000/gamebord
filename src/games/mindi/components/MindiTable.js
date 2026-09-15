@@ -200,7 +200,7 @@ export default function MindiTable({ gameState, mySeat, players = [],  playerNam
 
       {/* User Hand at Bottom */}
       <div className="absolute bottom-2 sm:bottom-4 left-0 right-0 flex justify-center z-30">
-        <div className="flex -space-x-6 sm:-space-x-6 hover:-space-x-2 sm:hover:space-x-1 transition-all duration-300 px-4 max-w-full overflow-x-auto pb-4 pt-8">
+        <div className="flex -space-x-6 sm:-space-x-8 hover:-space-x-4 sm:hover:-space-x-6 transition-all duration-300 px-4 max-w-[95%] overflow-x-auto pb-4 pt-8">
           {sortedHand.map((card, idx) => {
             const isValid = validCards.some(c => c.id === card.id);
             return (

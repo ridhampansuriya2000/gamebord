@@ -133,7 +133,7 @@ export default function ReverseTable({
   };
 
   return (
-    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/60 sm:rounded-[4rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col font-sans">
+    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/60 sm:rounded-[4rem] border-4 sm:border-8 border-amber-900/80 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col font-sans">
       {/* Premium Felt Texture */}
       <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
       
