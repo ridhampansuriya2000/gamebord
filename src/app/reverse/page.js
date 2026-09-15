@@ -231,10 +231,10 @@ export default function ReversePage() {
             onChooseColor={chooseColor}
             onCallUno={callUno}
             onChallengeUno={challengeUno}
-            onRestart={requestRestart}
+            onRestart={startGame}
             onLeave={handleBackToMode}
-            restartRequested={restartRequested}
-            restartAcceptedCount={restartAcceptedCount}
+            restartRequested={false}
+            restartAcceptedCount={0}
             mode={mode}
           />
         )}
