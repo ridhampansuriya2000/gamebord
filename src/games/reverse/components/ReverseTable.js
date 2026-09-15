@@ -133,7 +133,7 @@ export default function ReverseTable({
   };
 
   return (
-    <div className="w-full h-full max-h-full sm:max-h-none sm:h-auto max-w-5xl sm:aspect-video bg-green-900/60 rounded-2xl sm:rounded-[3rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col items-center justify-center font-sans">
+    <div className="w-full h-full max-h-full sm:max-h-none sm:h-auto max-w-6xl sm:aspect-video bg-green-900/60 rounded-2xl sm:rounded-[3rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col items-center justify-center font-sans">
       {/* Premium Felt Texture */}
       <div className="absolute inset-0 opacity-100 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
 
@@ -166,7 +166,7 @@ export default function ReverseTable({
       </div>
 
       {/* Center Trick Area */}
-      <div className="absolute top-[45%] sm:top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 sm:w-64 sm:h-64 rounded-full border border-white/10 flex items-center justify-center bg-black/10 z-10 shadow-inner mt-8 sm:mt-0">
+      <div className="absolute top-[45%] sm:top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-56 sm:h-56 rounded-full border border-white/10 flex items-center justify-center bg-black/10 z-10 shadow-inner mt-8 sm:mt-0">
         
         {/* Discard Pile (Messy Stack) */}
         <div className="relative z-10 pointer-events-auto">
@@ -237,7 +237,7 @@ export default function ReverseTable({
           </button>
         </div>
 
-        <div className="flex -space-x-8 sm:-space-x-10 hover:-space-x-2 sm:hover:-space-x-4 transition-all duration-300 px-4 max-w-full overflow-x-auto pb-4 pt-4 sm:pt-8 custom-scrollbar justify-center">
+        <div className="flex -space-x-8 sm:-space-x-10 hover:-space-x-2 sm:hover:-space-x-4 transition-all duration-300 px-4 max-w-full overflow-x-auto pt-4 sm:pt-8 custom-scrollbar justify-center">
           {myHand.map((card) => {
             const isValid = isCardValid(card);
             return (
