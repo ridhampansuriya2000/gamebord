@@ -39,7 +39,10 @@ export default function ReversePage() {
     challengeUno,
     resetConnection,
     connect,
-    mySeat
+    mySeat,
+    requestRestart,
+    restartRequested,
+    restartAcceptedCount
   } = useOnlineReverse();
 
   const rtc = useWebRTC(
@@ -231,10 +234,10 @@ export default function ReversePage() {
             onChooseColor={chooseColor}
             onCallUno={callUno}
             onChallengeUno={challengeUno}
-            onRestart={startGame}
+            onRestart={requestRestart}
             onLeave={handleBackToMode}
-            restartRequested={false}
-            restartAcceptedCount={0}
+            restartRequested={restartRequested}
+            restartAcceptedCount={restartAcceptedCount}
             mode={mode}
           />
         )}

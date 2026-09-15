@@ -133,7 +133,7 @@ export default function ReverseTable({
   };
 
   return (
-    <div className="w-full h-[100dvh] sm:h-[85vh] max-w-6xl mx-auto bg-green-900/60 sm:rounded-[4rem] border-4 sm:border-8 border-amber-900/80 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col font-sans">
+    <div className="w-full h-full max-h-full sm:max-h-none sm:h-auto max-w-5xl sm:aspect-video bg-green-900/60 rounded-2xl sm:rounded-[3rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col items-center justify-center font-sans">
       {/* Premium Felt Texture */}
       <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
       
@@ -169,8 +169,13 @@ export default function ReverseTable({
       </div>
 
       {/* Center Trick Area */}
-      <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 sm:w-64 sm:h-64 rounded-full border border-white/10 flex items-center justify-center bg-black/10 z-10 shadow-inner">
+      <div className="absolute top-[45%] sm:top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-36 h-36 sm:w-64 sm:h-64 rounded-full border border-white/10 flex items-center justify-center bg-black/10 z-10 shadow-inner mt-8 sm:mt-0">
         
+        {/* Subtle Game Title */}
+        <span className="absolute text-white/5 font-black text-4xl sm:text-6xl tracking-[0.2em] uppercase rotate-[-15deg] pointer-events-none select-none">
+          REVERSE
+        </span>
+
         {/* Discard Pile (Messy Stack) */}
         <div className="relative z-10 pointer-events-auto">
           {recentDiscards.length > 0 ? (
@@ -206,7 +211,7 @@ export default function ReverseTable({
       </div>
 
       {/* User Hand */}
-      <div className="absolute bottom-0 left-0 right-0 w-full pb-2 sm:pb-4 flex flex-col items-center z-20">
+      <div className="absolute bottom-2 sm:bottom-4 left-0 right-0 w-full flex flex-col items-center justify-center z-20">
         
         {/* Draw Pile (Left side of cards) */}
         <div className="absolute bottom-6 sm:bottom-10 left-4 sm:left-12 z-30 pointer-events-auto">

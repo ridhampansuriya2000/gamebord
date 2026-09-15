@@ -12,6 +12,8 @@ export default function useOnlineReverse() {
   const [players, setPlayers] = useState([]);
   const [playerNames, setPlayerNames] = useState({});
   const [maxPlayers, setMaxPlayers] = useState(4);
+  const [restartRequested, setRestartRequested] = useState(false);
+  const [restartAcceptedCount, setRestartAcceptedCount] = useState(0);
   
   const currentRoomId = useRef(null);
   
@@ -90,9 +92,15 @@ export default function useOnlineReverse() {
     newSocket.on('reverse-game-state', (state) => {
       setGameState(state);
       setMySeat(state.mySeat);
+      setRestartRequested(false);
+      setRestartAcceptedCount(0);
       if (state.status) {
          setStatus(state.status === 'playing' || state.status === 'color_selection' ? 'playing' : state.status);
       }
+    });
+
+    newSocket.on('reverse-restart-requested', ({ accepted, total }) => {
+      setRestartAcceptedCount(accepted);
     });
     
     setSocket(newSocket);
@@ -162,6 +170,12 @@ export default function useOnlineReverse() {
     socket.emit('reverse-challenge-uno', { roomId: currentRoomId.current, targetSeat });
   };
   
+  const requestRestart = () => {
+    if (!socket || !currentRoomId.current) return;
+    setRestartRequested(true);
+    socket.emit('reverse-request-restart', { roomId: currentRoomId.current });
+  };
+
   return {
     socket,
     status,
@@ -182,6 +196,9 @@ export default function useOnlineReverse() {
     drawCard,
     chooseColor,
     callUno,
-    challengeUno
+    challengeUno,
+    requestRestart,
+    restartRequested,
+    restartAcceptedCount
   };
 }
