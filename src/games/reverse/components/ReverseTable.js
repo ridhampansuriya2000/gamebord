@@ -133,7 +133,7 @@ export default function ReverseTable({
   };
 
   return (
-    <div className="w-full h-full max-h-full sm:max-h-none sm:h-auto max-w-6xl sm:aspect-video bg-green-900/60 rounded-2xl sm:rounded-[3rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col items-center justify-center font-sans">
+    <div className="w-full h-full max-h-full sm:max-h-none sm:h-auto max-w-[68rem] sm:aspect-video bg-green-900/60 rounded-2xl sm:rounded-[3rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col items-center justify-center font-sans">
       {/* Premium Felt Texture */}
       <div className="absolute inset-0 opacity-100 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
 
@@ -283,6 +283,20 @@ export default function ReverseTable({
              ))}
            </div>
 
+           <div className="flex flex-col items-center gap-4">
+             <button 
+               onClick={onRestart} 
+               disabled={mode === 'online' && restartRequested} 
+               className="px-8 py-3 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 disabled:text-slate-400 text-emerald-950 font-black rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+             >
+               {(mode === 'online' && restartRequested) 
+                 ? `Waiting for others (${restartAcceptedCount}/${players.filter(p => !p.startsWith('bot_')).length})...` 
+                 : (mode === 'online' ? 'Request Rematch' : 'Play Again')}
+             </button>
+             <button onClick={onLeave} className="text-slate-400 hover:text-white font-medium transition-colors">
+               Leave Game
+             </button>
+           </div>
          </div>
       )}
     </div>

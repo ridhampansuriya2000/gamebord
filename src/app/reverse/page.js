@@ -249,23 +249,6 @@ export default function ReversePage() {
               mode={mode}
             />
 
-            {/* Finished state actions (Restart) */}
-            {status === 'finished' && (
-              <div className="mt-8 flex flex-col items-center gap-4 animate-in slide-in-from-bottom-4">
-                 <button 
-                   onClick={requestRestart} 
-                   disabled={mode === 'online' && restartRequested} 
-                   className="px-8 py-3 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 disabled:text-slate-400 text-emerald-950 font-black rounded-xl transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)]"
-                 >
-                   {(mode === 'online' && restartRequested) 
-                     ? `Waiting for others (${restartAcceptedCount}/${players.filter(p => !p.startsWith('bot_')).length})...` 
-                     : (mode === 'online' ? 'Request Rematch' : 'Play Again')}
-                 </button>
-                 <button onClick={handleBackToMode} className="text-slate-400 hover:text-white font-medium transition-colors">
-                   Leave Game
-                 </button>
-              </div>
-            )}
           </div>
         )}
       </main>
