@@ -132,12 +132,16 @@ export default function useOnlineReverse() {
 
   const createRoom = (config, playerName) => {
     const s = initSocket();
-    s.emit('create-room', { gameType: 'reverse', config, playerName });
+    const emitCreate = () => s.emit('create-room', { gameType: 'reverse', config, playerName });
+    if (s.connected) emitCreate();
+    else s.once('connect', emitCreate);
   };
   
   const joinRoom = (code, playerName) => {
     const s = initSocket();
-    s.emit('join-room', { roomId: code, playerName });
+    const emitJoin = () => s.emit('join-room', { roomId: code, playerName });
+    if (s.connected) emitJoin();
+    else s.once('connect', emitJoin);
   };
 
   const startGame = useCallback(() => {

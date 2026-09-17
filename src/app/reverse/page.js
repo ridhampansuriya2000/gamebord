@@ -194,7 +194,7 @@ export default function ReversePage() {
         </div>
 
         {!gameState && !mode && (
-          <div className="w-full">
+          <div className="mt-4 flex justify-center w-full">
             <ModeSelection onLocal={() => setMode('bots')} onOnline={() => { setMode('online'); connect(); }} />
           </div>
         )}
