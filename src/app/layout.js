@@ -1,9 +1,8 @@
 import "./globals.css";
 
-export const metadata = {
-  title: "Suni Chokdi - Unbeatable Bot",
-  description: "Play Suni Chokdi (Tic-Tac-Toe) against an unbeatable Minimax bot.",
-};
+import { getSEO } from "../utils/seo";
+
+export const metadata = getSEO('home');
 
 export default function RootLayout({ children }) {
   return (

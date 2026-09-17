@@ -144,8 +144,10 @@ export default function ReversePage() {
     </div>
   );
 
+  const isPlaying = gameState && (status === 'playing' || status === 'finished' || status === 'choosing_color');
+
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-green-950/20 to-slate-900 flex flex-col font-sans text-white">
+    <div className={`min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-green-950/20 to-slate-900 flex flex-col items-center font-sans text-white overflow-x-hidden relative ${isPlaying ? 'max-sm:portrait:fixed max-sm:portrait:inset-0 max-sm:portrait:w-[100dvh] max-sm:portrait:h-[100dvw] max-sm:portrait:rotate-90 max-sm:portrait:origin-top-left max-sm:portrait:translate-x-[100dvw] max-sm:portrait:z-[9999]' : ''}`}>
       {mode && (
         <>
           <div className="fixed top-2 sm:top-4 left-2 sm:left-4 z-50 flex items-center gap-2 sm:gap-4">
@@ -156,6 +158,17 @@ export default function ReversePage() {
             >
               ← <span className="hidden sm:inline">{mode === 'online' ? 'Leave' : 'Back'}</span>
             </button>
+            
+            {status !== 'idle' && status !== 'waiting' && (
+              <button
+                onClick={requestRestart}
+                disabled={mode === 'online' && restartRequested}
+                className={`flex items-center justify-center gap-1 sm:gap-2 w-8 h-8 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-sm font-bold rounded-full sm:rounded-xl border border-emerald-500/30 shadow-xl transition-all duration-300 ${(mode === 'online' && restartRequested) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'}`}
+                title="Restart Game"
+              >
+                ↻ <span className="hidden sm:inline">{mode === 'online' && restartRequested ? `Waiting (${restartAcceptedCount}/${players.filter(p => !p.startsWith('bot_')).length})` : 'Restart'}</span>
+              </button>
+            )}
           </div>
 
           <GameHeader 
@@ -168,9 +181,22 @@ export default function ReversePage() {
         </>
       )}
 
-      <main className={`flex-1 flex flex-col items-center justify-center ${gameState ? '' : 'p-4'}`}>
+      <main className={`relative z-10 w-full max-w-5xl flex flex-col items-center ${isPlaying ? 'max-sm:h-[calc(100dvw-48px)] max-sm:mt-[48px] max-sm:px-4 max-sm:pb-4 max-sm:overflow-hidden flex-1 justify-center' : 'mt-12 sm:mt-16 p-4 flex-1 justify-center'}`}>
+        
+        {/* Title */}
+        <div className={`mb-6 text-center animate-in fade-in slide-in-from-top-8 duration-700 ${isPlaying ? 'max-sm:hidden' : ''}`}>
+          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 drop-shadow-[0_2px_10px_rgba(52,211,153,0.5)] uppercase italic mb-2">
+            REVERSE RUSH
+          </h1>
+          <p className="text-slate-400 text-sm sm:text-base font-medium tracking-wide">
+            Fast-Paced Card Action
+          </p>
+        </div>
+
         {!gameState && !mode && (
-          <ModeSelection onLocal={() => setMode('bots')} onOnline={() => { setMode('online'); connect(); }} />
+          <div className="w-full">
+            <ModeSelection onLocal={() => setMode('bots')} onOnline={() => { setMode('online'); connect(); }} />
+          </div>
         )}
 
         {!gameState && mode === 'bots' && renderBotConfig()}
@@ -225,13 +251,6 @@ export default function ReversePage() {
 
         {gameState && (
           <div className="w-full h-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500 max-sm:overflow-hidden">
-            {/* Title Outside Table */}
-            <div className="mb-2 sm:mb-4 text-center">
-               <h1 className="text-xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 drop-shadow-[0_2px_10px_rgba(52,211,153,0.5)] tracking-widest italic uppercase">
-                 REVERSE
-               </h1>
-            </div>
-
             <ReverseTable 
               gameState={gameState} 
               mySeat={mySeat}

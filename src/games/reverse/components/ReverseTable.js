@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReverseCard from './ReverseCard';
 import ColorPicker from './ColorPicker';
+import { soundEngine } from '../utils/sound';
 
 export default function ReverseTable({ 
   gameState, 
@@ -23,6 +24,12 @@ export default function ReverseTable({
   if (!gameState) return null;
 
   const { status, hands, discardPile, currentTurn, direction, activeColor, winner, scores, unoCallers, deckCount, actionLog, pendingWildPlayer } = gameState;
+
+  useEffect(() => {
+    if (status === 'finished') {
+      soundEngine.playGameEnd(winner === players[mySeat]);
+    }
+  }, [status, winner, players, mySeat]);
   const myHand = Array.isArray(hands[mySeat]) ? hands[mySeat] : [];
   const isMyTurn = status === 'playing' && currentTurn === mySeat;
   const isChoosingColor = status === 'color_selection' && pendingWildPlayer === mySeat;
@@ -105,7 +112,7 @@ export default function ReverseTable({
 
     return (
       <div key={seatIndex} style={posStyle} className={`flex flex-col items-center transition-all duration-500 z-20 ${isTurn ? 'scale-125' : 'opacity-90'}`}>
-        <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 flex flex-col items-center justify-center font-bold text-sm sm:text-lg shadow-lg
+        <div className={`relative w-10 h-10 sm:w-16 sm:h-16 rounded-full border-2 sm:border-4 flex flex-col items-center justify-center font-bold text-xs sm:text-lg shadow-lg
           ${isTurn ? 'border-emerald-400 bg-emerald-900/80 animate-pulse ring-4 ring-emerald-500/30' : 'border-white/20 bg-slate-800'}
         `}>
           {oppName.substring(0, 2).toUpperCase()}
@@ -166,7 +173,7 @@ export default function ReverseTable({
       </div>
 
       {/* Center Trick Area */}
-      <div className="absolute top-[45%] sm:top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-56 sm:h-56 rounded-full border border-white/10 flex items-center justify-center bg-black/10 z-10 shadow-inner mt-8 sm:mt-0">
+      <div className="absolute top-[45%] sm:top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 sm:w-56 sm:h-56 rounded-full border border-white/10 flex items-center justify-center bg-black/10 z-10 shadow-inner mt-8 sm:mt-0">
         
         {/* Discard Pile (Messy Stack) */}
         <div className="relative z-10 pointer-events-auto">
@@ -188,7 +195,7 @@ export default function ReverseTable({
               );
             })
           ) : (
-            <div className="w-16 h-24 sm:w-24 sm:h-36 border-[4px] border-dashed border-white/20 rounded-xl bg-black/10"></div>
+            <div className="w-12 h-20 sm:w-24 sm:h-36 border-[2px] sm:border-[4px] border-dashed border-white/20 rounded-lg sm:rounded-xl bg-black/10"></div>
           )}
         </div>
 
@@ -208,7 +215,13 @@ export default function ReverseTable({
         {/* Draw Pile (Left side of cards) */}
         <div className="absolute bottom-6 sm:bottom-10 left-4 sm:left-12 z-30 pointer-events-auto">
           <button 
-            onClick={() => isMyTurn && !hasValidCard && onDrawCard()}
+            onClick={() => {
+              if (isMyTurn && !hasValidCard) {
+                soundEngine.playDrawCard();
+                onDrawCard();
+              }
+            }}
+            onMouseEnter={() => soundEngine.playCardHover()}
             disabled={!isMyTurn || hasValidCard}
             className={`relative transition-all duration-300 ${isMyTurn && !hasValidCard ? 'hover:scale-105 hover:-translate-y-2 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.6)] animate-pulse' : 'opacity-80 grayscale-[0.3] cursor-not-allowed'}`}
           >
@@ -227,9 +240,12 @@ export default function ReverseTable({
         {/* UNO Button (Right side of cards) */}
         <div className="absolute bottom-6 sm:bottom-10 right-4 sm:right-12 z-30 pointer-events-auto">
           <button 
-            onClick={onCallUno}
+            onClick={() => {
+              soundEngine.playUnoCall();
+              onCallUno();
+            }}
             disabled={myHand.length > 2}
-            className={`w-16 h-16 sm:w-24 sm:h-24 rounded-full font-black italic border-4 shadow-2xl transition-all flex items-center justify-center text-sm sm:text-xl
+            className={`w-12 h-12 sm:w-24 sm:h-24 rounded-full font-black italic border-2 sm:border-4 shadow-2xl transition-all flex items-center justify-center text-[10px] sm:text-xl
               ${myHand.length <= 2 ? 'bg-red-500 hover:bg-red-400 text-white border-white scale-110 animate-pulse cursor-pointer hover:shadow-[0_0_30px_rgba(239,68,68,0.8)]' : 'bg-slate-800 text-slate-500 border-slate-600 opacity-50 cursor-not-allowed'}
             `}
           >
@@ -247,9 +263,11 @@ export default function ReverseTable({
                 selectable={isMyTurn}
                 selected={selectedCard === card.id}
                 disabled={isMyTurn && !isValid}
+                onMouseEnter={() => soundEngine.playCardHover()}
                 onClick={() => {
                   if (isMyTurn && isValid) {
                     if (selectedCard === card.id) {
+                      soundEngine.playCardSnap();
                       onPlayCard(card.id);
                       setSelectedCard(null);
                     } else {

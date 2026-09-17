@@ -1,0 +1,38 @@
+{
+  "baseUrl": "https://gameboard.ridhampansuriya.site",
+  "default": {
+    "title": "Gameboard | Multiplayer Board Games",
+    "description": "Play exciting multiplayer board games and card games online with friends and bots.",
+    "keywords": "board games, multiplayer, card games, mindi, uno, reverse, bingo, sos, tictactoe"
+  },
+  "home": {
+    "title": "Gameboard - Home",
+    "description": "Welcome to Gameboard. Choose from Mindi, Reverse, Bingo, SOS, and TicTacToe.",
+    "keywords": "games, online games, play with friends"
+  },
+  "mindi": {
+    "title": "Mindi - Play Online | Gameboard",
+    "description": "Play Mindi (Mendikot), the classic Indian card game. Team up and capture the tens!",
+    "keywords": "mindi, mendikot, card game, indian card game, tens"
+  },
+  "reverse": {
+    "title": "Reverse Rush - Play Online | Gameboard",
+    "description": "Play Reverse Rush, an exciting fast-paced card game similar to UNO. Play online or with bots.",
+    "keywords": "reverse rush, uno, card game, fast paced"
+  },
+  "bingo": {
+    "title": "Bingo - Play Online | Gameboard",
+    "description": "Play classic Bingo online with friends. Cross out rows and columns to win!",
+    "keywords": "bingo, classic bingo, numbers game"
+  },
+  "sos": {
+    "title": "SOS - Play Online | Gameboard",
+    "description": "Play the classic SOS paper-and-pencil game online. Form S-O-S to score points!",
+    "keywords": "sos, pen and paper game, tic tac toe variant"
+  },
+  "tictactoe": {
+    "title": "Tic Tac Toe - Play Online | Gameboard",
+    "description": "Play classic Tic Tac Toe (Noughts and Crosses) online with friends.",
+    "keywords": "tic tac toe, noughts and crosses, xs and os"
+  }
+}
