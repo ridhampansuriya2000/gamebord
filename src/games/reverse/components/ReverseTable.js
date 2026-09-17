@@ -30,6 +30,15 @@ export default function ReverseTable({
       soundEngine.playGameEnd(winner === players[mySeat]);
     }
   }, [status, winner, players, mySeat]);
+
+  const prevDiscardLength = React.useRef(discardPile?.length || 0);
+
+  useEffect(() => {
+    if (discardPile && discardPile.length > prevDiscardLength.current) {
+      soundEngine.playCardSnap();
+    }
+    prevDiscardLength.current = discardPile?.length || 0;
+  }, [discardPile]);
   const myHand = Array.isArray(hands[mySeat]) ? hands[mySeat] : [];
   const isMyTurn = status === 'playing' && currentTurn === mySeat;
   const isChoosingColor = status === 'color_selection' && pendingWildPlayer === mySeat;
@@ -142,7 +151,7 @@ export default function ReverseTable({
   return (
     <div className="w-full h-full max-h-full sm:max-h-none sm:h-auto max-w-[68rem] sm:aspect-video bg-green-900/60 rounded-2xl sm:rounded-[3rem] border-0 sm:border-[12px] border-green-950/90 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative overflow-hidden flex flex-col items-center justify-center font-sans">
       {/* Premium Felt Texture */}
-      <div className="absolute inset-0 opacity-100 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
+      <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
 
       {isChoosingColor && <ColorPicker onSelect={onChooseColor} />}
 
@@ -267,7 +276,6 @@ export default function ReverseTable({
                 onClick={() => {
                   if (isMyTurn && isValid) {
                     if (selectedCard === card.id) {
-                      soundEngine.playCardSnap();
                       onPlayCard(card.id);
                       setSelectedCard(null);
                     } else {

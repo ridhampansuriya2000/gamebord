@@ -68,7 +68,7 @@ export default function ReverseCard({ card, onClick, selectable, selected, disab
         )}
 
         <span 
-          className={`${displayValue === 'WILD' ? 'text-sm sm:text-2xl' : 'text-xl sm:text-4xl pr-1 sm:pr-2'} font-black italic tracking-tighter ${textColor} drop-shadow-sm transform skew-y-[12deg] text-center`}
+          className={`${displayValue === 'WILD' ? 'text-[10px] sm:text-xl' : 'text-xl sm:text-4xl pr-1 sm:pr-2'} font-black italic tracking-tighter ${textColor} drop-shadow-sm transform skew-y-[12deg] text-center`}
           style={{ textShadow: '1px 1px 0 rgba(0,0,0,0.1), -1px -1px 0 rgba(255,255,255,0.8)' }}
         >
           {displayValue}
