@@ -181,7 +181,7 @@ export default function ReversePage() {
         </>
       )}
 
-      <main className={`relative z-10 w-full max-w-5xl flex flex-col items-center ${isPlaying ? 'max-sm:h-[calc(100dvw-48px)] max-sm:mt-[48px] max-sm:px-4 max-sm:pb-4 max-sm:overflow-hidden flex-1 justify-center' : 'mt-12 sm:mt-16 p-4 flex-1 justify-center'}`}>
+      <main className={`relative z-10 w-full max-w-5xl flex flex-col items-center ${isPlaying ? 'max-sm:h-[calc(100dvw-48px)] max-sm:mt-[48px] max-sm:px-4 max-sm:pb-4 max-sm:overflow-hidden' : 'mt-12 sm:mt-16 p-4 flex-1 justify-center'}`}>
         
         {/* Title */}
         <div className={`mb-6 text-center animate-in fade-in slide-in-from-top-8 duration-700 ${isPlaying ? 'max-sm:hidden' : ''}`}>
@@ -250,7 +250,7 @@ export default function ReversePage() {
         )}
 
         {gameState && (
-          <div className="w-full h-full flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500 max-sm:overflow-hidden">
+          <div className="w-full h-full max-sm:h-[calc(100dvw-48px)] flex flex-col items-center animate-in slide-in-from-bottom-4 duration-500 max-sm:overflow-hidden">
             <ReverseTable 
               gameState={gameState} 
               mySeat={mySeat}

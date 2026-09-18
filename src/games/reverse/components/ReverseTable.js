@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReverseCard from './ReverseCard';
 import ColorPicker from './ColorPicker';
 import { soundEngine } from '../utils/sound';
@@ -20,6 +20,16 @@ export default function ReverseTable({
   mode
 }) {
   const [selectedCard, setSelectedCard] = useState(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  useEffect(() => {
+    soundEngine.enabled = soundEnabled;
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    const initSound = () => soundEngine.init();
+    document.addEventListener('click', initSound, { once: true });
+  }, []);
 
   if (!gameState) return null;
 
@@ -31,7 +41,7 @@ export default function ReverseTable({
     }
   }, [status, winner, players, mySeat]);
 
-  const prevDiscardLength = React.useRef(discardPile?.length || 0);
+  const prevDiscardLength = useRef(discardPile?.length || 0);
 
   useEffect(() => {
     if (discardPile && discardPile.length > prevDiscardLength.current) {
@@ -165,20 +175,30 @@ export default function ReverseTable({
       </div>
 
       {/* Game Info HUD (Top Right) */}
-      <div className="absolute top-4 sm:top-8 right-4 sm:right-8 flex flex-col items-center z-20 pointer-events-none bg-slate-900/80 p-3 sm:p-4 rounded-xl border border-white/10 shadow-lg">
-          {/* Direction Arrow */}
-          <div className={`text-2xl sm:text-3xl text-white/70 transition-transform duration-500 ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
-            ↻
-          </div>
-          {/* Active Color Info */}
-          {activeColor && (
-            <div className="mt-1 sm:mt-2 flex items-center gap-1.5 sm:gap-2">
-               <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-inner border border-white/30 
-                  ${activeColor === 'RED' ? 'bg-red-500' : activeColor === 'BLUE' ? 'bg-blue-500' : activeColor === 'GREEN' ? 'bg-green-500' : 'bg-yellow-400'}`}>
-               </div>
-               <span className="text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest">{activeColor}</span>
+      <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex items-center gap-2 z-20 pointer-events-auto">
+          <button 
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-900/80 rounded-lg sm:rounded-xl border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 transition-colors shadow-lg"
+            title={soundEnabled ? 'Mute Sounds' : 'Enable Sounds'}
+          >
+            {soundEnabled ? '🔊' : '🔇'}
+          </button>
+          
+          <div className="bg-slate-900/80 p-2 sm:p-3 rounded-lg sm:rounded-xl border border-white/10 flex flex-col items-center shadow-lg min-w-[3rem]">
+            {/* Direction Arrow */}
+            <div className={`text-xl sm:text-2xl text-white/70 transition-transform duration-500 leading-none ${direction === 1 ? 'rotate-0' : '-scale-x-100'}`}>
+              ↻
             </div>
-          )}
+            {/* Active Color Info */}
+            {activeColor && (
+              <div className="mt-1 flex flex-col items-center gap-1">
+                 <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-inner border border-white/30 
+                    ${activeColor === 'RED' ? 'bg-red-500' : activeColor === 'BLUE' ? 'bg-blue-500' : activeColor === 'GREEN' ? 'bg-green-500' : 'bg-yellow-400'}`}>
+                 </div>
+                 <span className="text-white text-[8px] sm:text-[10px] font-black uppercase tracking-widest leading-none">{activeColor}</span>
+              </div>
+            )}
+          </div>
       </div>
 
       {/* Center Trick Area */}
